@@ -1,2 +1,1 @@
-# llm2las
-A tool that learns from answer sets using Large language models for robust question and answering
+#1. This is repository for the *paper Using Learning from Answer Sets for Robust Question Answering with LLM* submitted in conference LPNMR 2024.
