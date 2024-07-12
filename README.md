@@ -10,7 +10,7 @@
 - **PyTorch**: Version 2.4.0
 - **spaCy**
 - **Django Framework**
-- Install requirements from `requirements.txt` on your local machine
+- Install `requirements.txt` 
 
 ### Installation Instructions
 
@@ -24,23 +24,26 @@
    ```python
    access_token = "Your HuggingFace Access Key"
 3. To change the model, update the model name in `LLMModule/logic/views.py` `model_name = "Hugging Face model name"`
-1. In case using the LLM model `"tiiuae/falcon-7b-instruct"` ensure you have around 15GB of disk space.
+4. when using the LLM model `"tiiuae/falcon-7b-instruct"` ensure to have around *15GB* of disk space.
 
 
 #### Reasoning Module
-- Install Clingo v5.6.2 on your local machine.
+- Install Clingo v5.6.2 `pip install clingo==5.6.2` on your local machine.
 
 #### Learning Module
-- Install ILASP v4.4.0 on a local machine with sufficient RAM (16GB recommended) and a good CPU.
+- Install ILASP v4.4.0 on a local machine with sufficient RAM (16GB recommended).
+- Download ILASP `https://www.ilasp.com/download`
+- Follow installation instruction available at `https://doc.ilasp.com/installation.html`
 
 ### How to Run
 1. **Set up the environment**:
    - Install all dependencies on both the GPU server and the local system.
+   - **Note**: It is recommended to run the LLM model on a GPU and ILASP on a CPU, as ILASP is resource-intensive.
 
 2. **Run the Django Framework**:
-   - On the GPU server, start the Django server with the command:
+   - On the GPU server start the Django application, go to path `/llm2las/LLMModule/` and run `manage.py` with the command:
      ```sh
-     python manage.py runserver
+       python manage.py runserver
      ```
 
 3. **Update Configuration**:
