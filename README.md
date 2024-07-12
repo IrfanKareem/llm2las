@@ -15,10 +15,14 @@
 ### Installation Instructions
 
 #### LLM Module
-1. Install the LLM model `"tiiuae/falcon-7b-instruct"`.
+1. Install the LLM module dependencies:
+- **django**
+- **djangorestframework**
+- **transformers** 
 2. Update your Hugging Face account access token in `LLMModule/logic/views.py` by setting `access_token = "Your HuggingFace Access Key"`.
-3. Ensure you have around *15GB* of disk space.
-4. Install the LLM module on a GPU server using the Django framework.
+3. To change the model, change the name at `LLMModule/logic/views.py` `model_name = "Hugging Face model name"`
+1. In case of used LLM model `"tiiuae/falcon-7b-instruct"`, ensure you have around *15GB* of disk space.
+
 
 #### Reasoning Module
 - Install Clingo v5.6.2 on your local machine.
