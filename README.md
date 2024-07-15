@@ -24,7 +24,7 @@
    ```python
    access_token = "Your HuggingFace Access Key"
 3. To change the model, update the model name in `LLMModule/logic/views.py` `model_name = "Hugging Face model name"`
-4. when using the LLM model `"tiiuae/falcon-7b-instruct"` ensure to have around *15GB* of disk space.
+4. When using the LLM model `"tiiuae/falcon-7b-instruct"` ensure to have around *15GB* of disk space.
 
 
 #### Reasoning Module
