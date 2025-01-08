@@ -72,7 +72,7 @@ class Reasoner:
         return answer
 
     def getAnswerSets(self):
-        command = "Clingo -W none -n 0 " + self.filename
+        command = "clingo -W none -n 0 " + self.filename
         output = os.popen(command).read()
         return processClingoOutput(output)
 

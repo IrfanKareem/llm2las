@@ -21,6 +21,7 @@ class Question(Sentence):
         return self.hints
 
     def isCorrectAnswer(self, answer):
+        #return set(set(self.answer)).issubset(answer)
         return set(answer) == set(self.answer)
 
     def getQuestionWithAnswers(self, eventCalculusNeeded=True):

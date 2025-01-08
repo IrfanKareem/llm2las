@@ -11,10 +11,11 @@ import re
 from .llm_prompts import prompts
 
 # Initialize the model here (you can modify parameters as needed)   
-model_name = "tiiuae/falcon-7b-instruct" 
-access_token = "Your HuggingFace Access Key" 
+model_name = "llama3.3:70b" 
+access_token = "Your HuggingFace Access Key"
+API_URL = "http://172.20.64.1:11434/v1"
 prompt = prompts[1]
-lm_model = LanguageModel(model_name, access_token, prompt)
+lm_model = LanguageModel(model_name, access_token, prompt, API_URL)
 
 
 @api_view(['POST'])
@@ -25,19 +26,46 @@ def generate_response(request):
         return None 
     lm_model.update_prompt(prompts[taskId])
     response = lm_model.generate(sentence)
-    generated_text = response[0]['generated_text']
+    # generated_text = response[0]['generated_text']
     # Extract the last two lines for sentence and semantic parse
-    your_turn_idx = generated_text.find('Your turn')
-    if your_turn_idx > 0:
-        target_answer = generated_text[your_turn_idx:].split('\n')
-        if len(target_answer) > 2:
-            raw = target_answer[2].replace("Semantic parse:", "")
+    parsing_idx = response.find('Semantic parse:')
+    if parsing_idx != -1:
+        parsed_predicate = re.sub(r"Semantic parse:\s*","", response[parsing_idx:]).replace(".","")
+        parsed_predicate = re.sub(r"\s+","", parsed_predicate)
+        parsed_predicate = re.sub(r"\n","", parsed_predicate)
+        if len(parsed_predicate) != 0:
             return Response({
                 "sentence": sentence,
-                "semantic_parse": raw.strip()
+                "semantic_parse": parsed_predicate.strip()
             })
 
     return Response({
         "sentence": sentence,
         "semantic_parse": ""
     })
+
+# @api_view(['POST'])
+# def generate_response(request):
+#     sentence = request.data.get('sentence')
+#     taskId = request.data.get('taskId')
+#     if taskId not in list(prompts.keys()):
+#         return None 
+#     lm_model.update_prompt(prompts[taskId])
+#     response = lm_model.generate(sentence)
+#     generated_text = response[0]['generated_text']
+#     # Extract the last two lines for sentence and semantic parse
+#     your_turn_idx = generated_text.find('Your turn')
+#     if your_turn_idx > 0:
+#         target_answer = generated_text[your_turn_idx:].split('\n')
+#         if len(target_answer) > 2:
+#             raw = target_answer[2].replace("Semantic parse:", "")
+#             return Response({
+#                 "sentence": sentence,
+#                 "semantic_parse": raw.strip()
+#             })
+
+#     return Response({
+#         "sentence": sentence,
+#         "semantic_parse": ""
+#     })
+
