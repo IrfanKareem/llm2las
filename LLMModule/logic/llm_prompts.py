@@ -29,7 +29,7 @@ Sentence: Where is Daniel?
 Semantic parse: be_in(daniel,V1).
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -111,7 +111,7 @@ Sentence: Sarah grabbed the milk there.
 Semantic parse: pickup(sarah, milk)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -174,7 +174,7 @@ Sentence: What is Babar carrying?
 Semantic parse: carry(babar, V1)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -234,7 +234,7 @@ Sentence: Is William in the kitchen?
 Semantic parse: be_in(william, kitchen)
 \"\"\"
 
-Please, provide just the parsing data in examples format and do not negate predicates.
+Please, provide just the parsing data using the examples format and do not negate predicates.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -295,9 +295,12 @@ Semantic parse: go_to(susan,school)
 
 Sentence: Is Mameli in the theater?
 Semantic parse: be_in(mameli,theater)
+
+Sentence: Giacomo is either in the kitchen or the kitchen.
+Semantic parse: be_in(giacomo,kitchen), be_in(giacomo,kitchen)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide the parsing data using the examples format and avoid commenting the results.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -390,7 +393,7 @@ Sentence: Where is Albert?
 Semantic parse: be_in(albert,V1)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -432,7 +435,7 @@ Sentence: Valeria and Giorgio journeyed to the mall.
 Semantic parse: go_to(valeria,office), go_to(giorgio,mall)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -492,7 +495,7 @@ Sentence: Then Oscar and Ana moved to the kitchen.
 Semantic parse: go_to(oscar,kitchen), go_to(ana,kitchen)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -558,7 +561,7 @@ Sentence: Where was Julie before the park?
 Semantic parse: be_before(julie,park,V1)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -618,7 +621,7 @@ Sentence: What is Jessica afraid of?
 Semantic parse: be_afraid_of(jessica,V1)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -678,7 +681,7 @@ Sentence: Lily is yellow.
 Semantic parse: be_color(lily,yellow)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -735,7 +738,7 @@ Sentence: Does the box of chocolates fit in the container?
 Semantic parse: fit_inside(box_of_chocolates,container)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
@@ -804,7 +807,7 @@ Sentence: Why did Pancho get the football?
 Semantic parse: get(pancho,football,V1)
 \"\"\"
 
-Please, provide just the parsing data in examples format.
+Please, provide just the parsing data using the examples format.
 The sentence to parse is:
 \"\"\"
 Sentence: {{sentence}}
