@@ -9,7 +9,7 @@ from Utilities.ILASPSyntax import varWrapping, constWrapping, createConstantTerm
 import requests
 import json
 
-LLM_SERVICE_URL = "http://YOUR_IP_ADDRESS:YOUR_PORT/logic/generate/"
+LLM_SERVICE_URL = "http://127.0.0.1:8000/logic/generate/"
 
 def createPronounRegularExpression(pronoun):
     return re.compile("(^| )" + pronoun + "( |[.!?]$)")
@@ -59,16 +59,16 @@ class BasicParser:
     
 
     def parse_llm(self, sentence: str):
+        print("To be parsed: " + sentence)
         response = requests.post(LLM_SERVICE_URL, data=json.dumps({'sentence': sentence, 'taskId': self.taskId}), headers={"Content-Type":'application/json'})
-        
         if response.status_code == 200:
-            parsed_data = response.json()
-            
+            parsed_data = response.json()            
             fluent_representation = parsed_data.get("semantic_parse", "")
+            print("Parsed: " + sentence + " Fluent: " + fluent_representation)
             
             if fluent_representation is not None:
-                matches = [[x.group()] for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", fluent_representation.strip())]
-                return matches
+                matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", fluent_representation.strip())]
+                return [matches]
             else:
                 return None
         else:
