@@ -99,6 +99,7 @@ class Reasoner:
                 for i in range(0, len(representation)):
                     choiceRule = createChoiceRule(representation[i], statement,
                                                   eventCalculusUsage=self.corpus.isEventCalculusNeeded)
+                    print(f"choiceRule: --- {choiceRule}")
                     file.write(choiceRule)
                     file.write('.\n')
 
@@ -110,9 +111,9 @@ class Reasoner:
 
 
         # Read and print the entire content of the Clingo file
-        # print("Clingo file content:")
-        # with open(self.filename, 'r') as file:
-        #     print(file.read())
+        print("Clingo file content:")
+        with open(self.filename, 'r') as file:
+            print(file.read())
 
     def searchForAnswer(self, question: Question, answerSets):
         if question.isYesNoMaybeQuestion():

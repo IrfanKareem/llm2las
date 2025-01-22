@@ -1,0 +1,6 @@
+1 The hallway is east of the bathroom.
+2 The bedroom is west of the bathroom.
+3 What is the bathroom east of?	bedroom	2
+1 The bedroom is west of the kitchen.
+2 The hallway is west of the bedroom.
+3 What is west of the kitchen?	bedroom	1

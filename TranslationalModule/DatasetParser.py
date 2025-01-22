@@ -13,20 +13,29 @@ class DatasetParser(BasicParser):
         self.useSupervision = useSupervision
 
 
+        print(" Pos-Tagging Train Stories Corpus ".center(80, "%"))
         for story in self.trainCorpus:
-            for sentence in story:
-                sentence.doc = self.nlp(self.coreferenceFinder(sentence, story))
-        for story in self.testCorpus:
-            for sentence in story:
+            for example_id, sentence in enumerate(story):
+                print(f"{example_id}: pos-tagging: {sentence}")
                 sentence.doc = self.nlp(self.coreferenceFinder(sentence, story))
 
+        print(" Pos-Tagging Test Stories Corpus ".center(80, "%"))
+        for story in self.testCorpus:
+            for example_id, sentence in enumerate(story):
+                print(f"{example_id}: pos-tagging: {sentence}")
+                sentence.doc = self.nlp(self.coreferenceFinder(sentence, story))
+
+        print(" Semantic Parsing Train Stories Corpus ".center(80, "%"))
         for story in self.trainCorpus:
-            for sentence in story:
+            for example_id, sentence in enumerate(story):
+                print(f"{example_id}: llm-parsing: {sentence}")
                 if isinstance(sentence, Question):
                     self.parse(sentence)
 
+        print(" Semantic Parsing Test Stories Corpus ".center(80, "%"))
         for story in self.testCorpus:
-            for sentence in story:
+            for example_id, sentence in enumerate(story):
+                print(f"{example_id}: llm-parsing: {sentence}")
                 if isinstance(sentence, Question):
                     self.parse(sentence)
 

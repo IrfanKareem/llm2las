@@ -31,7 +31,7 @@ def generate_response(request):
     parsing_idx = response.find('Semantic parse:')
     if parsing_idx != -1:
         parsed_predicate = re.sub(r"Semantic parse:\s*","", response[parsing_idx:]).replace(".","")
-        parsed_predicate = re.sub(r"\s+","", parsed_predicate)
+        #parsed_predicate = re.sub(r"\s+","", parsed_predicate)
         parsed_predicate = re.sub(r"\n","", parsed_predicate)
         if len(parsed_predicate) != 0:
             return Response({

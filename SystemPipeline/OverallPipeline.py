@@ -12,6 +12,8 @@ if __name__ == "__main__":
     parser.add_argument('-r', dest='representation', type=str, help='Required representation, either EventCalculus or Fluent', default='Fluent')
     parser.add_argument('-n', '--num-samples', type=int, dest='max_examples', help='test dataset path', default=-1)
     parser.add_argument('--taskId', type=int, dest='taskId', help='bAbi task identifier [1-20]', default=1, required=True)
+    parser.add_argument('--ilasp_version', type=str, dest='ilasp_version', help='the ILASP version is one of: 2, 2i, 3, 4', default='4')
+    parser.add_argument('--dataset-shuffle-seed', type=int, help="Seed to shuffle the corpus.", default=0)
     args = parser.parse_args()
 
     if len(sys.argv) >= 4 and args.component == 'dataset':
@@ -30,9 +32,8 @@ if __name__ == "__main__":
             accuracy, parsingTime, learningTime = DatasetPipeline(trainingCorpus, testingCorpus, 
                                                                   useSupervision=useSupervision, 
                                                                   useExpressivityChecker=useExpressivityChecker,
-                                                                  numExamples=numExamples, taskId=args.taskId)
+                                                                  numExamples=numExamples, taskId=args.taskId, ilasp_version=args.ilasp_version, dataset_shuffle_seed=args.dataset_shuffle_seed)
             print("Parsing Time:", parsingTime, ",Learning Time: ", learningTime, ",Accuracy: ", accuracy)
         except Exception as error:
-            print(error)
+            print(error.with_traceback())
             print("Something went wrong. Please check all the provided argument are correct and try again")
-

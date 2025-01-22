@@ -1,0 +1,22 @@
+1 The office is north of the kitchen.
+2 The garden is south of the kitchen.
+3 What is north of the kitchen?	office	1
+1 The kitchen is west of the garden.
+2 The hallway is west of the kitchen.
+3 What is the garden east of?	kitchen	1
+1 The garden is north of the office.
+2 The bedroom is north of the garden.
+3 What is north of the garden?	bedroom	2
+1 The bedroom is west of the hallway.
+2 The kitchen is west of the bedroom.
+3 What is the hallway east of?	bedroom	1
+1 The bathroom is east of the bedroom.
+2 The kitchen is west of the bedroom.
+3 What is the bedroom east of?	kitchen	2
+1 The bedroom is south of the office.
+2 The bedroom is north of the garden.
+3 What is the office north of?	bedroom	1
+1 The garden is west of the office.
+2 The bedroom is west of the garden.
+3 What is west of the office?	garden	1
+1 The kitchen is east of the hallway.

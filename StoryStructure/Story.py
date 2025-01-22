@@ -5,6 +5,10 @@ class Story:
     def __init__(self):
         self.sentences = []
 
+    @property
+    def timestamps(self):
+        return len(self.sentences)
+
     def __len__(self):
         return len(self.sentences)
 

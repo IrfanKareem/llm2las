@@ -7,7 +7,9 @@ from StoryStructure.Sentence import Sentence
 from TranslationalModule.ConceptNetIntegration import ConceptNetIntegration
 from Utilities.ILASPSyntax import varWrapping, constWrapping, createConstantTerm
 import requests
+from TranslationalModule.LLMCache import SemanticParsingCache
 import json
+from pathlib import Path 
 
 LLM_SERVICE_URL = "http://127.0.0.1:8000/logic/generate/"
 
@@ -38,6 +40,10 @@ class BasicParser:
         self.temporalConstants = {}
         self.taskId = taskId
 
+        cache_folder = Path(".semantic-parsing-cache")
+        cache_folder.mkdir(parents=True, exist_ok=True)
+        self.cache = SemanticParsingCache((cache_folder / str(taskId)).as_posix())
+
     def coreferenceFinder(self, statement: Sentence, story: Story):
         index = story.getIndex(statement)
         sentenceDoc = self.nlp(statement.text)
@@ -59,21 +65,33 @@ class BasicParser:
     
 
     def parse_llm(self, sentence: str):
-        print("To be parsed: " + sentence)
-        response = requests.post(LLM_SERVICE_URL, data=json.dumps({'sentence': sentence, 'taskId': self.taskId}), headers={"Content-Type":'application/json'})
-        if response.status_code == 200:
-            parsed_data = response.json()            
-            fluent_representation = parsed_data.get("semantic_parse", "")
-            print("Parsed: " + sentence + " Fluent: " + fluent_representation)
+        cache_hit = self.cache.get_cache(sentence)
+        if cache_hit is None:
+            response = requests.post(LLM_SERVICE_URL, data=json.dumps({'sentence': sentence, 'taskId': self.taskId}), headers={"Content-Type":'application/json'})
+            if response.status_code != 200:
+                raise RuntimeError("Error in LLM server response")
             
-            if fluent_representation is not None:
+            response = response.json()
+            print(f"[cache debug] Cache miss on {sentence}: got {response}, saving to cache")
+            self.cache.write_cache(sentence, response)
+        else:
+            response = cache_hit 
+            print(f"[cache debug] Cache hit on {sentence}: retrieved {response}")
+
+        parsed_data = response          
+        fluent_representation = parsed_data["semantic_parse"]
+        print("Parsed: " + sentence + " Fluent: " + fluent_representation)
+        
+        if fluent_representation is not None:
+            if '|' in fluent_representation:
                 matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", fluent_representation.strip())]
                 return [matches]
             else:
-                return None
+                matches = [[x.group()] for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", fluent_representation.strip())]
+                return matches
         else:
-            print("Error in LLM server response")
             return None
+
 
             
     def modebias(self, fluents, statement):
@@ -166,6 +184,7 @@ class BasicParser:
     
     def parse(self, statement: Sentence):
 
+        #Determining if there is negation in the sentence
         negation = [token for token in statement.doc if token.dep_ == 'neg' and token.tag_ == 'RB']
         if negation:
             statement.negatedVerb = True

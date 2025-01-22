@@ -37,6 +37,89 @@ Semantic parse:
 \"\"\"
 """
 
+prompt_qa4 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+The available predicates names are: be_east_of, be_west_of, be_north_of, and be_south_of.
+
+Here are a few examples of parsings to guide you in the task:
+
+\"\"\"
+Sentence: The office is north of the kitchen.
+Semantic parse: be_north_of(office,kitchen)
+
+Sentence: The garden is south of the kitchen.
+Semantic parse: be_south_of(office,kitchen)
+
+Sentence: The park is west of the store.
+Semantic parse: be_west_of(park,store)
+
+Sentence: The supermarket is west of the mall.
+Semantic parse: be_east_of(supermarket,mall)
+
+Sentence: What is north of the parking?
+Semantic parse: be_north_of(V1,parking)
+
+Sentence: What is east of the supermarket?
+Semantic parse: be_east_of(V1,parking)
+
+Sentence: What is the office north of?
+Semantic parse: be_north_of(office,V1)
+
+Sentence: What is the stadium west of?
+Semantic parse: be_west_of(stadium,V1)
+
+\"\"\"
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+\"\"\"
+Sentence: {{sentence}}
+Semantic parse:
+\"\"\"
+"""
+
+prompt_qa5 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+The available predicates names are: give_to, give, take, go_to, and leave.
+Look that the give_to based predicates implies also give and receive.
+
+Here are a few examples of parsings to guide you in the task:
+
+\"\"\"
+Sentence: Alvin travelled to the office.
+Semantic parse: go_to(alvin,office)
+
+Sentence: Mathilde picked up the baseball there.
+Semantic parse: take(mathilde,baseball)
+
+Sentence: Ricardo went back to the park.
+Semantic parse: go_to(ricardo,park)
+
+Sentence: Aaron gave the fork to Albert.
+Semantic parse: give_to(aaron,fork,albert)
+
+Sentence: Who received the football?
+Semantic parse: receive(V1,football)
+
+Sentence: What did Juan give to Ramon?
+Semantic parse: give_to(juan,V1,ramon)
+
+Sentence: Who did Axel give the apple to?
+Semantic parse: give_to(axel,apple,V1)
+
+Sentence: Who gave the milk?
+Semantic parse: give(V1,milk)
+
+Sentence: Margarita put down the milk.
+Semantic parse: leave(Margarita,milk)
+\"\"\"
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+\"\"\"
+Sentence: {{sentence}}
+Semantic parse:
+\"\"\"
+"""
+
 prompt_qa6 =  """Please parse the sentence is provided below into a first-order logic predicate form. The available predicates names are: pickup, drop, go_to, and be_in.
 Here are a few examples of parsings to guide you in the task:
 
@@ -243,16 +326,16 @@ Semantic parse:
 """
 
 prompt_qa10 = """Please parse the sentence is provided below into a first-order logic predicate form. 
-The available predicates names are: go_to, and be_in.
+The available predicates names are: go_to, and be_in. Please use the "|" character to represent disjunction.
 
 Here are a few examples of parsings to guide you in the task:
 
 \"\"\"
 Sentence: Joulie is either in the school or the home.
-Semantic parse: be_in(joulie,school), be_in(joulie,home)
+Semantic parse: be_in(joulie,school) | be_in(joulie,home)
 
 Sentence: Angelina is either in the cinema or the garden.
-Semantic parse: be_in(angelina,cinema), be_in(angelina,garden)
+Semantic parse: be_in(angelina,cinema) | be_in(angelina,garden)
 
 Sentence: Bill moved to the park.
 Semantic parse: go_to(bill,park)
@@ -279,13 +362,13 @@ Sentence: Mary moved to the park.
 Semantic parse: go_to(mary,park)
 
 Sentence: Bill is either in the kitchen or the park.
-Semantic parse: be_in(bill,kitchen), be_in(bill,park)
+Semantic parse: be_in(bill,kitchen) | be_in(bill,park)
 
 Sentence: Leonardo is in the roof.
 Semantic parse: be_in(Leonardo,roof)
 
 Sentence: Sean is either in the store or the theater.
-Semantic parse: be_in(sean,store), be_in(sean,theater)
+Semantic parse: be_in(sean,store) | be_in(sean,theater)
 
 Sentence: Nicolas went to the cinema.
 Semantic parse: go_to(nicolas,cinema)
@@ -297,7 +380,7 @@ Sentence: Is Mameli in the theater?
 Semantic parse: be_in(mameli,theater)
 
 Sentence: Giacomo is either in the kitchen or the kitchen.
-Semantic parse: be_in(giacomo,kitchen), be_in(giacomo,kitchen)
+Semantic parse: be_in(giacomo,kitchen) | be_in(giacomo,kitchen)
 \"\"\"
 
 Please, provide the parsing data using the examples format and avoid commenting the results.
@@ -689,6 +772,48 @@ Semantic parse:
 \"\"\"
 """
 
+prompt_qa17 = """Please parse the sentence is provided below into a first-order logic predicate form.
+The available predicates names are: above, below, right, and below.
+
+Here are a few examples of parsings to guide you in the task:
+
+\"\"\"
+Sentence: The triangle is above the pink rectangle.
+Semantic parse: be_above_of(triangle,pink_rectangle)
+
+Sentence: The blue square is to the left of the triangle.
+Semantic parse: be_left_of(blue_square,triangle)
+
+Sentence: The blue square is to the right of the circle.
+Semantic parse: be_right_of(blue_square,circle)
+
+Sentence: The red square is below the blue square.
+Semantic parse: be_below_of(red_square,blue_square)
+
+Sentence: The sphere is below the square.
+Semantic parse: be_below_of(sphere,square)
+
+Sentence: Is the blue square below the yellow square?
+Semantic parse: be_below_of(blue_square,yellow_square)
+
+Sentence: Is the sphere to the right of the triangle?
+Semantic parse: be_right_of(sphere,triangle)
+
+Sentence: Is the red circle above the cyan square?
+Semantic parse: be_above_of(red_circle,cyan_square)
+
+Sentence: Is the square to the right of the circle?
+Semantic parse: be_right_of(square,circle)
+\"\"\"
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+\"\"\"
+Sentence: {{sentence}}
+Semantic parse:
+\"\"\"
+"""
+
 prompt_qa18 = """Please parse the sentence is provided below into a first-order logic predicate form.
 The available predicates names are: fit_inside and be_big.
 
@@ -736,6 +861,36 @@ Semantic parse: fit_inside(chocolate,box_of_chocolates)
 
 Sentence: Does the box of chocolates fit in the container?
 Semantic parse: fit_inside(box_of_chocolates,container)
+\"\"\"
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+\"\"\"
+Sentence: {{sentence}}
+Semantic parse:
+\"\"\"
+"""
+
+prompt_qa19 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+The available predicates names are: edge, and path.
+
+Here are a few examples of parsings to guide you in the task:
+
+\"\"\"
+Sentence: The garden is west of the bathroom.
+Semantic parse: edge(garden,bathroom,west),edge(bathroom,garden,east).
+
+Sentence: The bedroom is east of the hallway.
+Semantic parse: edge(bedroom,hallway,east),edge(hallway,bedroom,west).
+
+Sentence: The kitchen is north of the kitchen.
+Semantic parse: edge(kitchen,park,north),edge(park,kitchen,south).
+
+Sentence: The roof is south of the bathroom.
+Semantic parse: edge(roof,bathroom,south),edge(bathroom,roof,north).
+
+Sentence: How do you go from the bathroom to the hallway?
+Semantic parse: path(bathroom, hallway, V1, V2).
 \"\"\"
 
 Please, provide just the parsing data using the examples format.
@@ -816,6 +971,8 @@ Semantic parse:
 """
 
 prompts = {1: prompt_qa1, 
+           4: prompt_qa4,
+           5: prompt_qa5,
            6: prompt_qa6, 
            8: prompt_qa8, 
            9: prompt_qa9, 
@@ -826,5 +983,7 @@ prompts = {1: prompt_qa1,
            14: prompt_qa14, 
            15: prompt_qa15, 
            16: prompt_qa16, 
+           17: prompt_qa17, 
            18: prompt_qa18, 
+           19: prompt_qa19,
            20: prompt_qa20}

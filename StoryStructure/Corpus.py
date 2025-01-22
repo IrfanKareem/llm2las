@@ -21,6 +21,9 @@ class Corpus:
     def append(self, story):
         self.stories.append(story)
 
+    def sort_stories_by_timestamps(self, reverse=False):
+        self.stories.sort(key=lambda x: x.timestamps, reverse=reverse)
+
     def addNonECExample(self, example):
         self.nonEventCalculusExamples.append(example)
 
@@ -59,9 +62,10 @@ class Corpus:
     def addConstantModeBias(self, constantBias):
         self.constantModeBias.add(constantBias)
 
-    def shuffle(self):
-        random.seed(4)
-        random.shuffle(self.stories)
+    def shuffle(self, seed=4):
+        import random 
+        rng = random.Random(seed)
+        rng.shuffle(self.stories)
 
     def getIndex(self, story: Story):
         return self.stories.index(story)
