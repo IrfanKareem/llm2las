@@ -970,7 +970,68 @@ Semantic parse:
 \"\"\"
 """
 
-prompts = {1: prompt_qa1, 
+prompt_mb = """I want you to parse a sentence given its fluent representation (fact atoms) into its Mode bias fluent representation.
+The Mode bias fluent consist of atoms from the sentence's fluent representation where all arguments have been replaced by their types as argument for  "var" or "const". For example, const(type) or var(type). The argument types are determined using the POS tagging data of the sentence and the WH-determiners (whose POS tag is WDT).
+
+Lest break the task in several steps:
+1. Determine the POS tagging sequence for the input sentence.
+2. If the input sentence fluent representation contains an argument that is a variable, then apply just one of the following cases: 
+	2.1 If the question starting word is a WH-determiner (WDT), use noun lemma text as type for the variable. For example, for "What color is Mary?" mode bias is: be_color(var(nnp), var(color)) ;
+	2.2 If there is not WH-determiner (WDT) in the sentence, but it is a "when", "where" or a "what" question , then the variable’s type is "nn";
+	2.3 If the question is a "who" question, then the variable’s type is "nnp";
+	2.4 If the question is a "why" question, then the variable’s type is "jj";
+	2.5 If the question is a "how many" question, then the variable’s type is "number".
+3. If the argument has an "isA" relationship with any WH-determiners from the story's questions, then its type is given by the WH-determiner;
+4. Otherwise, the argument's type is given by its associated tag.
+
+We provide the types for all arguments that have a temporal aspect and the types of variables in "why" questions with "const" wrappings. We give the types of all arguments that have a temporal aspect or that are adjectives without "isA" relationships with determiners "const" wrappings. The types of all other arguments are given "var" wrappings. Table 2 provides the mode bias fluents for the sentences in a story. 
+
+##Notes
+- For case 2.1 does not derive the noun POS tagging for the type but use the noun lemma itself.
+- A Temporal Aspect is when a word is related to some temporal like "day". Fo example, "yesterday" has a temporal aspect.
+
+The following are some examples to allow you to understand the task: 
+
+Sentence: Mice are afraid of wolves. 
+Fact atom: be_afraid_of(mouse, wolf).
+Mode bias: be_afraid_of(var(nn), var(nn)).
+
+Sentence: Mary is a mouse.
+Fluent representation: be(mary, mouse).
+mode bias: be(var(nnp), var(nn)).
+
+Sentence: What is Mary afraid of?
+Fluent representation: be_afraid_of(mary, V1).
+Mode bias: be_afraid_of(var(nnp), var(nn)).
+
+Sentence: What color is Mary?.
+Fluent representation: be_color(mary, V1).
+Mode bias: be_color(var(nnp), var(color)).
+
+Sentence: What is Luca carrying?
+Fluent representation: carry(luca, V1).
+Mode bias: carry(var(nnp), var(nn)).
+
+Sentence: What size is Phill?.
+Fluent representation: be_size(phill, V1).
+Mode bias: be_size(var(nnp), var(size)).
+
+Sentence: Joan is sick.
+Fluent representation: be(joan, V1).
+Mode bias: be(var(nnp), const(jj)).
+
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+Sentence: {{sentence }}	
+Fluent representation: {{fluent}}
+Mode bias:
+"""
+
+
+
+prompts = {0: prompt_mb,
+           1: prompt_qa1, 
            4: prompt_qa4,
            5: prompt_qa5,
            6: prompt_qa6, 

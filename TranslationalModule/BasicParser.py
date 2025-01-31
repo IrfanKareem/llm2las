@@ -12,6 +12,7 @@ import json
 from pathlib import Path 
 
 LLM_SERVICE_URL = "http://127.0.0.1:8000/logic/generate/"
+LLM_SERVICE_URL_MB = "http://127.0.0.1:8000/logic/generate_mb/"
 
 def createPronounRegularExpression(pronoun):
     return re.compile("(^| )" + pronoun + "( |[.!?]$)")

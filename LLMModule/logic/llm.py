@@ -16,7 +16,6 @@ class LanguageModel:
         self.prompt = new_prompt
     
     def generate(self, sentence, max_length=1740, do_sample=False, temperature=0.8, top_p=0.9, num_return_sequences=1):   
-        complete_prompt = self.prompt + "Sentence: " + sentence
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages = [
@@ -35,6 +34,38 @@ class LanguageModel:
                         {
                             "type": "text", 
                             "text": self.prompt.replace("{{sentence}}", sentence)
+                        }
+                    ]
+                }
+            ],
+            response_format={
+                "type": "text"
+            },
+            temperature=temperature,
+            max_completion_tokens=2048,
+            top_p=top_p,
+        )
+        return response.choices[0].message.content
+    
+    def generate_mb(self, sentence, fluent, max_length=1740, do_sample=False, temperature=0.8, top_p=0.9, num_return_sequences=1):   
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages = [
+                { 
+                    "role": "system", 
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Hello, you are a semantic parser assistant in the propositional logic field. Your job is to semantic parse some sentences and questions into a mode bias representation." 
+                        }
+                    ] 
+                },
+                { 
+                    "role": "user", 
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": self.prompt.replace("{{sentence}}", sentence).replace("{{fluent}}", fluent)
                         }
                     ]
                 }
