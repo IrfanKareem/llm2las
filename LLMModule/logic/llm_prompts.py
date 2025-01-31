@@ -1021,9 +1021,10 @@ Fluent representation: be(joan, V1).
 Mode bias: be(var(nnp), const(jj)).
 
 
-Please, provide just the parsing data using the examples format.
+Please, strictly provide just the parsing data using the examples format. 
+No extra comments or explanations are needed.
 The sentence to parse is:
-Sentence: {{sentence }}	
+Sentence: {{sentence}}	
 Fluent representation: {{fluent}}
 Mode bias:
 """
