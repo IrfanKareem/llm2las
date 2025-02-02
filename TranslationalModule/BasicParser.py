@@ -10,6 +10,7 @@ import requests
 from TranslationalModule.LLMCache import SemanticParsingCache
 import json
 from pathlib import Path 
+import logging
 
 LLM_SERVICE_URL = "http://127.0.0.1:8000/logic/generate/"
 LLM_SERVICE_URL_MB = "http://127.0.0.1:8000/logic/generate_mb/"
@@ -90,6 +91,35 @@ class BasicParser:
             else:
                 matches = [[x.group()] for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", fluent_representation.strip())]
                 return matches
+        else:
+            return None
+        
+    def parse_llm_mb(self, sentence: str, fluent: str):
+        cache_hit = self.cache.get_cache(sentence)
+        #if cache_hit is None:
+        response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': sentence, 'fluent': fluent}), headers={"Content-Type":'application/json'})
+        if response.status_code != 200:
+            raise RuntimeError("Error in LLM server response")
+        
+        response = response.json()
+        #print(f"[cache debug] Cache miss on {sentence}: got {response}, saving to cache")
+        #self.cache.write_cache(sentence, response)
+        #else:
+        #    response = cache_hit 
+        #    print(f"[cache debug] Cache hit on {sentence}: retrieved {response}")
+
+        parsed_data = response          
+        mbias_representation = parsed_data["semantic_parse"]
+        print("Parsed: " + sentence + " Mode bias: " + mbias_representation)
+        
+        if mbias_representation is not None:
+            # if '|' in mbias_representation:
+            #     matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
+            #     return [matches]
+            # else:
+            #     matches = [[x.group()] for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
+            #     return matches
+            return [[mbias_representation]]
         else:
             return None
 
@@ -200,8 +230,27 @@ class BasicParser:
                 "JJ" in token.tag_ and "NN" not in token.head.tag_) or "W" in token.tag_]
             possibleArguments = self.orderNouns(possibleArguments, statement)
             
-            mode_bias_fluents = self.modebias(predicate, statement)
-            statement.setModeBiasFluents(mode_bias_fluents)
+            #/////////////////////NEW//////////////////////////
+            to_parse = ''
+            if len(predicate[0])>1:##//Disjunzione
+                to_parse = " | ".join(predicate[0])
+            else:
+                to_parse = ", ".join([x[0] for x in predicate])
+                
+            #mode_bias = self.parse_llm_mb(sentence_text, predicate[0][0])
+            mode_bias = self.parse_llm_mb(sentence_text, to_parse)
+            if mode_bias:         
+                #mode_bias_fluents = self.modebias(predicate, statement)
+                #statement.setModeBiasFluents(mode_bias_fluents)
+                statement.setModeBiasFluents(mode_bias)
+                
+                mb = re.sub(r"\s+", "", mode_bias[0][0])   
+                prior_mb = self.modebias(predicate, statement)
+                prior = prior_mb[0][0]
+                prior = re.sub(r"\s+", "", prior)               
+                logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
+                if(prior != mb):
+                    logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")
         
         else:
             # Setting a default fluent representation if parsing fails

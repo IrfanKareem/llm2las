@@ -445,7 +445,7 @@ class LearnerV2:
     def solveILASPTask(self):
         literals_ub = self.heuristics.maxNumberOfLiterals()
         
-        for ml in range(2, literals_ub+1):
+        for ml in range(1, literals_ub+1):
             # Check if language bias already exists with the current number of literals
             if not Path(f"{self.language_bias_file}-{ml}").exists():
                 

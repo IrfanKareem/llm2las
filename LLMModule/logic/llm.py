@@ -47,7 +47,7 @@ class LanguageModel:
         )
         return response.choices[0].message.content
     
-    def generate_mb(self, sentence, fluent, max_length=1740, do_sample=False, temperature=0.8, top_p=0.9, num_return_sequences=1):   
+    def generate_mb(self, sentence, fluent, max_length=2048, do_sample=False, temperature=0.5, top_p=0.5, num_return_sequences=1):   
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages = [
@@ -74,8 +74,8 @@ class LanguageModel:
                 "type": "text"
             },
             temperature=temperature,
-            max_completion_tokens=2048,
-            top_p=top_p,
+            max_completion_tokens=max_length,
+            top_p=top_p
         )
         return response.choices[0].message.content
 
