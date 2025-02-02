@@ -970,62 +970,83 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_mb = """I want you to parse a sentence given its fluent representation (fact atoms) into its Mode bias fluent representation.
-The Mode bias fluent consist of atoms from the sentence's fluent representation where all arguments have been replaced by their types as argument for  "var" or "const". For example, const(type) or var(type). The argument types are determined using the POS tagging data of the sentence and the WH-determiners (whose POS tag is WDT).
+prompt_mb = """Your task is to convert a sentence, given its fluent representation (fact atoms), into its Mode Bias fluent representation.
 
-Lest break the task in several steps:
+The Mode Bias fluent consists of atoms from the sentence's fluent representation, where all arguments have been replaced by their types as arguments for "var" or "const". 
+These types are derived from the sentence’s POS tagging and any WH-determiners (with the POS tag "WDT").
+
+Let's break the task into clear steps:
+
 1. Determine the POS tagging sequence for the input sentence.
-2. If the input sentence fluent representation contains an argument that is a variable, then apply just one of the following cases: 
-	2.1 If the question starting word is a WH-determiner (WDT), use noun lemma text as type for the variable. For example, for "What color is Mary?" mode bias is: be_color(var(nnp), var(color)) ;
-	2.2 If there is not WH-determiner (WDT) in the sentence, but it is a "when", "where" or a "what" question , then the variable’s type is "nn";
-	2.3 If the question is a "who" question, then the variable’s type is "nnp";
-	2.4 If the question is a "why" question, then the variable’s type is "jj";
-	2.5 If the question is a "how many" question, then the variable’s type is "number".
-3. If the argument has an "isA" relationship with any WH-determiners from the story's questions, then its type is given by the WH-determiner;
-4. Otherwise, the argument's type is given by its associated tag.
+2. If the fluent representation contains a variable argument, apply one of the following rules based on the type of question:
+    2.1 **WH-determiner present (WDT)**: Use the noun lemma (not the POS tag) as the type for the variable. For example, in the sentence "What color is Mary?", the mode bias is: `be_color(var(nnp), var(color))`.
+    2.2 **No WH-determiner** but "when", "where", or "what" question: The variable's type is "nn" (noun).
+    2.3 **"Who" question**: The variable's type is "nnp" (proper noun).
+    2.4 **"Why" question**: The variable's type is "jj" (adjective).
+    2.5 **"How many" question**: The variable’s type is "number".
+3. If the argument is related to any WH-determiner in the context (e.g., through an "isA" relationship), its type is assigned based on the WH-determiner.
+4. Otherwise, the argument's type is **strictly** determined by its POS tag.
+5. Apply the correct wrapping ("var" or "const") to argument types:
+    5.1 **Temporal Aspect**: Arguments with a temporal aspect (e.g., words like "day", "morning", "yesterday") or variables in "why" questions are wrapped in "const".
+    5.2 **Adjectives**: If the argument is an adjective (e.g., "sick") without an "isA" relationship to a WH-determiner, wrap it in "const".
+    5.3 **Modal Verb "will"**: If the "Where" question includes the modal verb "will", the the variable type should be wrapped in "const".
+    5.4 **Other cases**: All other arguments are wrapped in "var".
 
-We provide the types for all arguments that have a temporal aspect and the types of variables in "why" questions with "const" wrappings. We give the types of all arguments that have a temporal aspect or that are adjectives without "isA" relationships with determiners "const" wrappings. The types of all other arguments are given "var" wrappings. Table 2 provides the mode bias fluents for the sentences in a story. 
+## Notes
+- For **step 2.1**, do not derive the noun's POS tag; instead, use the noun lemma.
+- A **Temporal Aspect** refers to words that indicate time-related concepts, such as "yesterday", "today", "morning", etc.
+- For **step 4**, it is mandatory to use the POS tag inferred in **step 1**.
+- For adverbs having a temporal aspect use "nn" as type.
+- Apply **step 5.3** just if "will" modal verb exists. 
 
-##Notes
-- For case 2.1 does not derive the noun POS tagging for the type but use the noun lemma itself.
-- A Temporal Aspect is when a word is related to some temporal like "day". Fo example, "yesterday" has a temporal aspect.
+Here are some examples for reference:
 
-The following are some examples to allow you to understand the task: 
+- Sentence: "Mice are afraid of wolves."
+  Fluent representation: `be_afraid_of(mouse, wolf)`
+  Mode bias: `be_afraid_of(var(nn), var(nn))`
 
-Sentence: Mice are afraid of wolves. 
-Fact atom: be_afraid_of(mouse, wolf).
-Mode bias: be_afraid_of(var(nn), var(nn)).
+- Sentence: "Is Luca in the park?"
+  Fluent representation: `be_in(luca, park)`
+  Mode bias: `be_in(var(nnp), var(nn))`
 
-Sentence: Mary is a mouse.
-Fluent representation: be(mary, mouse).
-mode bias: be(var(nnp), var(nn)).
+- Sentence: "Mary is a mouse."
+  Fluent representation: `be(mary, mouse)`
+  Mode bias: `be(var(nnp), var(nn))`
 
-Sentence: What is Mary afraid of?
-Fluent representation: be_afraid_of(mary, V1).
-Mode bias: be_afraid_of(var(nnp), var(nn)).
+- Sentence: "What is Mary afraid of?"
+  Fluent representation: `be_afraid_of(mary, V1)`
+  Mode bias: `be_afraid_of(var(nnp), var(nn))`
 
-Sentence: What color is Mary?.
-Fluent representation: be_color(mary, V1).
-Mode bias: be_color(var(nnp), var(color)).
+- Sentence: "What color is Mary?"
+  Fluent representation: `be_color(mary, V1)`
+  Mode bias: `be_color(var(nnp), var(color))`
 
-Sentence: What is Luca carrying?
-Fluent representation: carry(luca, V1).
-Mode bias: carry(var(nnp), var(nn)).
+- Sentence: "Joan is sick."
+  Fluent representation: `be(joan, sick)`
+  Mode bias: `be(var(nnp), const(jj))`
 
-Sentence: What size is Phill?.
-Fluent representation: be_size(phill, V1).
-Mode bias: be_size(var(nnp), var(size)).
+- Sentence: "What is Luca carrying?"
+  Fluent representation: `carry(luca, V1)`
+  Mode bias: `carry(var(nnp), var(nn))`
+  
+- Sentence: "Joaquin journeyed to the office this morning"
+  Fluent representation: `go_to(joaquin, office, morning)`
+  Mode bias: `go_to(var(nnp), var(nn), const(nn))`
 
-Sentence: Joan is sick.
-Fluent representation: be(joan, V1).
-Mode bias: be(var(nnp), const(jj)).
+- Sentence: "What size is Phill?"
+  Fluent representation: `be_size(phill, V1)`
+  Mode bias: `be_size(var(nnp), var(size))`
 
+Please **strictly** provide the parsing output in the following format:
+- Sentence: {sentence}
+- Fluent representation: {fluent}
+- Mode bias: {mode_bias}
 
-Please, strictly provide just the parsing data using the examples format. 
 No extra comments or explanations are needed.
+
 The sentence to parse is:
-Sentence: {{sentence}}	
-Fluent representation: {{fluent}}
+Sentence: {{sentence}}  
+Fluent representation: {{fluent}}  
 Mode bias:
 """
 
