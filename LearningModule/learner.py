@@ -263,6 +263,7 @@ class LearnerV2:
         self.heuristics = HeuristicGenerator(self.corpus)
         self.ilasp_version = ilasp_version
         self.used_cache_files = []
+        self.last_ml_used = 1
 
     def learn(self, question: Question, story: Story, answer, createNewLearningFile=False):
         if self.corpus.choiceRulesPresent:
@@ -445,15 +446,14 @@ class LearnerV2:
     def solveILASPTask(self):
         literals_ub = self.heuristics.maxNumberOfLiterals()
         
-        for ml in range(1, literals_ub+1):
+        for ml in range(self.last_ml_used, literals_ub+1):
+            self.last_ml_used = ml # Update the last used number of literals thus avoiding re-solving with a smaller number of literals if no needed
             # Check if language bias already exists with the current number of literals
             if not Path(f"{self.language_bias_file}-{ml}").exists():
                 
                 print(f"Creating (ground) LAS bias file... @ {self.language_bias_file}-{ml}")
                 command = f"ILASP -s -q -nc -ml={ml} --version={self.ilasp_version} {self.language_bias_file} > {self.language_bias_file}-{ml}"
                 os.popen(command).read()
-
-
             else:
                 print(f"{self.language_bias_file}-{ml} already exists. Skipping creation of bias file.")
                 check_file_not_empty(f"{self.language_bias_file}-{ml}")
