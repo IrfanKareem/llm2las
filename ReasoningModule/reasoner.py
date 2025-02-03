@@ -141,7 +141,7 @@ class Reasoner:
         return answers
 
     def representationSearch(self, question: Question, answerSets):
-        representation = self.getRepresentation(question)
+        representation = re.sub(r'\s+', '', self.getRepresentation(question))
         numAnswerSetsIn = 0
         for answerSet in answerSets:
             for rule in answerSet:
