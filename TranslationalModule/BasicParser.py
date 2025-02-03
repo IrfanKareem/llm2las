@@ -114,13 +114,16 @@ class BasicParser:
         print("Parsed: " + sentence + " Mode bias: " + mbias_representation)
         
         if mbias_representation is not None:
-            # if '|' in mbias_representation:
-            #     matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
-            #     return [matches]
-            # else:
-            #     matches = [[x.group()] for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
-            #     return matches
-            return [[mbias_representation]]
+            aux_mb = re.sub(r"\s+", "", mbias_representation)
+            if '|' in mbias_representation:
+                #matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
+                #return [matches]
+                return [[x.strip() for x in aux_mb.strip().split("|")]]
+                #return [mbias_representation.split("|")]
+            else:
+                matches = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
+                return matches
+            #return [[mbias_representation]]
         else:
             return None
 
