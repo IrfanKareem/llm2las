@@ -95,38 +95,58 @@ class BasicParser:
         else:
             return None
         
-    def parse_llm_mb(self, sentence: str, fluent: str):
-        cache_hit = self.cache_mb.get_cache(sentence+fluent)
+    def parse_llm_mb(self, statement, fluent: str):
+        cache_hit = self.cache_mb.get_cache(statement.text+fluent)
         if cache_hit is None:
-            response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': sentence, 'fluent': fluent}), headers={"Content-Type":'application/json'})
+            response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': statement.text, 'fluent': fluent}), headers={"Content-Type":'application/json'})
             if response.status_code != 200:
                 raise RuntimeError("Error in LLM server response")
             
             response = response.json()
-            print(f"[cache mb debug] Cache miss on {sentence}: got {response}, saving to cache")
-            self.cache_mb.write_cache(sentence+fluent, response)
+            print(f"[cache mb debug] Cache miss on {statement.text}: got {response}, saving to cache")
+            self.cache_mb.write_cache(statement.text+fluent, response)
         else:
            response = cache_hit 
-           print(f"[cache mb debug] Cache hit on {sentence}: retrieved {response}")
+           print(f"[cache mb debug] Cache hit on {statement.text}: retrieved {response}")
 
         parsed_data = response          
         mbias_representation = parsed_data["semantic_parse"]
-        print("Parsed: " + sentence + " Mode bias: " + mbias_representation)
+        print("Parsed: " + statement.text + " Mode bias: " + mbias_representation)
         
         if mbias_representation is not None:
             aux_mb = re.sub(r"\s+", "", mbias_representation)
             if '|' in mbias_representation:
                 #matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
-                #return [matches]
+                #return [matches]                
+                self._add_constant_if_needed(statement, fluent, aux_mb)
                 return [[x.strip() for x in aux_mb.strip().split("|")]]
                 #return [mbias_representation.split("|")]
             else:
+                self._add_constant_if_needed(statement, fluent, aux_mb)
                 matches = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
                 return matches
             #return [[mbias_representation]]
         else:
             return None
-
+        
+    def _add_constant_if_needed(self, statement, fluent, mb_fluent):
+        '''
+        Add constant mode bias to the statement if the fluent has a constant argument
+        The function searches for the constant (const(type)) argument in the mode bias fluent:
+            - If exists, the function searches for the argument in the fluent and adds it (addConstantModeBias).
+        '''
+        if "const(" in mb_fluent:
+            re_mb_args = r"(var\([a-z]+\)|const\([a-z]+\))"
+            re_fluent_args = r"\(([^)]+)\)"
+            
+            fluent_arguments = []
+            for x in re.finditer(re_fluent_args, fluent.strip()):
+                fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",")                
+                
+            for id, arg in enumerate(re.finditer(re_mb_args, mb_fluent)):
+                if "const(" in arg.group(0) and id < len(fluent_arguments):
+                    arg_type = arg.group(0).replace("const(", "").replace(")", "")
+                    statement.addConstantModeBias(createConstantTerm(arg_type, fluent_arguments[id]))
 
             
     def modebias(self, fluents, statement):
@@ -242,19 +262,19 @@ class BasicParser:
                 to_parse = ", ".join([x[0] for x in predicate])
                 
             #mode_bias = self.parse_llm_mb(sentence_text, predicate[0][0])
-            mode_bias = self.parse_llm_mb(sentence_text, to_parse)
+            mode_bias = self.parse_llm_mb(statement, to_parse)
             if mode_bias:         
                 #mode_bias_fluents = self.modebias(predicate, statement)
                 #statement.setModeBiasFluents(mode_bias_fluents)
                 statement.setModeBiasFluents(mode_bias)
                 
-                mb = re.sub(r"\s+", "", mode_bias[0][0])   
-                prior_mb = self.modebias(predicate, statement)
-                prior = prior_mb[0][0]
-                prior = re.sub(r"\s+", "", prior)               
-                logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
-                if(prior != mb):
-                    logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")
+                # mb = re.sub(r"\s+", "", mode_bias[0][0])   
+                # prior_mb = self.modebias(predicate, statement)
+                # prior = prior_mb[0][0]
+                # prior = re.sub(r"\s+", "", prior)               
+                # logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
+                # if(prior != mb):
+                #     logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")
         
         else:
             # Setting a default fluent representation if parsing fails
