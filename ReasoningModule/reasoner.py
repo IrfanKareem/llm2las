@@ -130,7 +130,7 @@ class Reasoner:
 
     def unificationSearch(self, question: Question, answerSet):
         answers = []
-        representation = self.getRepresentation(question)
+        representation = re.sub(r'\s+', '', self.getRepresentation(question))
         pattern = createRegularExpression(representation)
         compiledPattern = re.compile(pattern)
         for rule in answerSet:
