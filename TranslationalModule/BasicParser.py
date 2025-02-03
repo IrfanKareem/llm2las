@@ -45,6 +45,7 @@ class BasicParser:
         cache_folder = Path(".semantic-parsing-cache")
         cache_folder.mkdir(parents=True, exist_ok=True)
         self.cache = SemanticParsingCache((cache_folder / str(taskId)).as_posix())
+        self.cache_mb = SemanticParsingCache((cache_folder / f'{str(taskId)}_mb' ).as_posix())
 
     def coreferenceFinder(self, statement: Sentence, story: Story):
         index = story.getIndex(statement)
@@ -95,18 +96,18 @@ class BasicParser:
             return None
         
     def parse_llm_mb(self, sentence: str, fluent: str):
-        cache_hit = self.cache.get_cache(sentence)
-        #if cache_hit is None:
-        response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': sentence, 'fluent': fluent}), headers={"Content-Type":'application/json'})
-        if response.status_code != 200:
-            raise RuntimeError("Error in LLM server response")
-        
-        response = response.json()
-        #print(f"[cache debug] Cache miss on {sentence}: got {response}, saving to cache")
-        #self.cache.write_cache(sentence, response)
-        #else:
-        #    response = cache_hit 
-        #    print(f"[cache debug] Cache hit on {sentence}: retrieved {response}")
+        cache_hit = self.cache_mb.get_cache(sentence+fluent)
+        if cache_hit is None:
+            response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': sentence, 'fluent': fluent}), headers={"Content-Type":'application/json'})
+            if response.status_code != 200:
+                raise RuntimeError("Error in LLM server response")
+            
+            response = response.json()
+            print(f"[cache mb debug] Cache miss on {sentence}: got {response}, saving to cache")
+            self.cache_mb.write_cache(sentence+fluent, response)
+        else:
+           response = cache_hit 
+           print(f"[cache mb debug] Cache hit on {sentence}: retrieved {response}")
 
         parsed_data = response          
         mbias_representation = parsed_data["semantic_parse"]
