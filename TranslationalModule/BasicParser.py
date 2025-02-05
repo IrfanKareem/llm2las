@@ -102,16 +102,23 @@ class BasicParser:
         else:
             return None
         
-    def parse_llm_mb(self, statement, fluent: str):
-        cache_hit = self.cache_mb.get_cache(statement.text+fluent)
+    def parse_llm_mb(self, statement):
+        
+        to_parse = ''
+        if len(statement.getFluents()[0])>1:##//Disjunzione
+            to_parse = " | ".join(statement.getFluents()[0])
+        else:
+            to_parse = ", ".join([x[0] for x in statement.getFluents()])
+        
+        cache_hit = self.cache_mb.get_cache(statement.text+to_parse)
         if cache_hit is None:
-            response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': statement.text, 'fluent': fluent}), headers={"Content-Type":'application/json'})
+            response = requests.post(LLM_SERVICE_URL_MB, data=json.dumps({'sentence': statement.text, 'fluent': to_parse}), headers={"Content-Type":'application/json'})
             if response.status_code != 200:
                 raise RuntimeError("Error in LLM server response")
             
             response = response.json()
             print(f"[cache mb debug] Cache miss on {statement.text}: got {response}, saving to cache")
-            self.cache_mb.write_cache(statement.text+fluent, response)
+            #self.cache_mb.write_cache(statement.text+to_parse, response)
         else:
            response = cache_hit 
            print(f"[cache mb debug] Cache hit on {statement.text}: retrieved {response}")
@@ -120,21 +127,59 @@ class BasicParser:
         mbias_representation = parsed_data["semantic_parse"]
         print("Parsed: " + statement.text + " Mode bias: " + mbias_representation)
         
+        mode_bias_fluents = None
         if mbias_representation is not None:
             aux_mb = re.sub(r"\s+", "", mbias_representation)
             if '|' in mbias_representation:
                 #matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
                 #return [matches]                
-                self._add_constant_if_needed(statement, fluent, aux_mb)
-                return [[x.strip() for x in aux_mb.strip().split("|")]]
+                self._add_constant_if_needed(statement, to_parse, aux_mb)
+                #return [[x.strip() for x in aux_mb.strip().split("|")]]
                 #return [mbias_representation.split("|")]
+                mode_bias_fluents = [[x.strip() for x in aux_mb.strip().split("|")]]
             else:
-                self._add_constant_if_needed(statement, fluent, aux_mb)
-                matches = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
-                return matches
+                self._add_constant_if_needed(statement, to_parse, aux_mb)
+                #matches = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
+                #return matches
+                mode_bias_fluents = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
             #return [[mbias_representation]]
+            
+            if cache_hit is None:
+                if not isinstance(statement, Question) and len(self.determiners)>0:
+                    self._adjust_mb_determiners(statement.getFluents(), mode_bias_fluents)           
+            
+                to_cache = ''
+                if len(mode_bias_fluents[0])>1:##//Disjunzione
+                    to_cache = " | ".join(statement.getFluents()[0])
+                else:
+                    to_cache = ", ".join([x[0] for x in mode_bias_fluents])                   
+                    self.cache_mb.write_cache(statement.text+to_parse, {"sentence": statement.text, "semantic_parse": to_cache})
+            
+            return mode_bias_fluents
+            
         else:
             return None
+        
+    def _adjust_mb_determiners(self, fluents, mb_fluents):
+        for concept in self.determiners:
+            for id, pred in enumerate(fluents):
+                fluent_arguments = []
+                for x in re.finditer(r"\(([^)]+)\)", pred[0].strip()):
+                    fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",")                                                     
+                for idx, arg in enumerate(fluent_arguments):
+                    if self.conceptNet.isA(arg, concept, True):
+                        re_mb_args = r"(var\([a-z]+\)|const\([a-z]+\))"
+                        re_name = r'^\w+'
+                        mb_args =  re.findall(re_mb_args, mb_fluents[id][0])
+                        pred_name =  re.findall(re_name, mb_fluents[id][0])[0]
+                        pred_name += "("
+                        for i, mbarg in enumerate(mb_args):
+                            if i == idx:
+                                pred_name += f"var({concept})"
+                            else:
+                                pred_name = pred_name + f"{mbarg}," if i != len(mb_args)-1 else pred_name + f"{mbarg}"
+                        pred_name += ")"
+                        mb_fluents[id][0] = pred_name        
         
     def _add_constant_if_needed(self, statement, fluent, mb_fluent):
         '''
@@ -154,7 +199,7 @@ class BasicParser:
                 if "const(" in arg.group(0) and id < len(fluent_arguments):
                     arg_type = arg.group(0).replace("const(", "").replace(")", "")
                     statement.addConstantModeBias(createConstantTerm(arg_type, fluent_arguments[id]))
-
+        
             
     def modebias(self, fluents, statement):
         doc = self.nlp(statement.doc.text)
@@ -262,16 +307,16 @@ class BasicParser:
             possibleArguments = self.orderNouns(possibleArguments, statement)
             
             #/////////////////////NEW//////////////////////////
-            to_parse = ''
-            if len(predicate[0])>1:##//Disjunzione
-                to_parse = " | ".join(predicate[0])
-            else:
-                to_parse = ", ".join([x[0] for x in predicate])
+            # to_parse = ''
+            # if len(predicate[0])>1:##//Disjunzione
+            #     to_parse = " | ".join(predicate[0])
+            # else:
+            #     to_parse = ", ".join([x[0] for x in predicate])
                 
             #mode_bias = self.parse_llm_mb(sentence_text, predicate[0][0])
-            mode_bias = self.parse_llm_mb(statement, to_parse)
+            mode_bias = self.parse_llm_mb(statement)
             
-            #/////////////////////replacing with determiners//////////////////////////
+            #/////////////////////replacing with determiners//////////////////////////           
             if isinstance(statement, Question) and not statement.isYesNoMaybeQuestion():
                 typeDeterminer = [token.lemma_ for token in statement.doc if hasWHDeterminerChild(token)]
                 if typeDeterminer:
@@ -281,10 +326,9 @@ class BasicParser:
                     for id, pred in enumerate(predicate):
                         fluent_arguments = []
                         for x in re.finditer(r"\(([^)]+)\)", pred[0].strip()):
-                            fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",") 
-                                                    
+                            fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",")                                                     
                         for idx, arg in enumerate(fluent_arguments):
-                            if self.conceptNet.isA(arg, concept):
+                            if self.conceptNet.isA(arg, concept, False):
                                 re_mb_args = r"(var\([a-z]+\)|const\([a-z]+\))"
                                 re_name = r'^\w+'
                                 mb_args =  re.findall(re_mb_args, mode_bias[id][0])

@@ -29,6 +29,8 @@ class ConceptNetIntegration:
         obj = requests.get(query).json()
         if moreSearches:
             for edge in obj['edges']:
+                if concept in edge['end']['label']:
+                    return True
                 if self.isA(edge['end']['label'], concept, False):
                     return True
         return False
