@@ -103,7 +103,6 @@ class BasicParser:
             return None
         
     def parse_llm_mb(self, statement):
-        
         to_parse = ''
         if len(statement.getFluents()[0])>1:##//Disjunzione
             to_parse = " | ".join(statement.getFluents()[0])
@@ -143,7 +142,6 @@ class BasicParser:
                 #return matches
                 mode_bias_fluents = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
             #return [[mbias_representation]]
-            
             if cache_hit is None:
                 if not isinstance(statement, Question) and len(self.determiners)>0:
                     self._adjust_mb_determiners(statement.getFluents(), mode_bias_fluents)           
@@ -153,8 +151,7 @@ class BasicParser:
                     to_cache = " | ".join(statement.getFluents()[0])
                 else:
                     to_cache = ", ".join([x[0] for x in mode_bias_fluents])                   
-                    self.cache_mb.write_cache(statement.text+to_parse, {"sentence": statement.text, "semantic_parse": to_cache})
-            
+                    self.cache_mb.write_cache(statement.text+to_parse, {"sentence": statement.text, "semantic_parse": to_cache})  
             return mode_bias_fluents
             
         else:
@@ -321,26 +318,7 @@ class BasicParser:
                 typeDeterminer = [token.lemma_ for token in statement.doc if hasWHDeterminerChild(token)]
                 if typeDeterminer:
                     self.determiners.add(typeDeterminer[0])
-            elif not isinstance(statement, Question) and len(self.determiners)>0:#There is a determiner to analyze
-                for concept in self.determiners:
-                    for id, pred in enumerate(predicate):
-                        fluent_arguments = []
-                        for x in re.finditer(r"\(([^)]+)\)", pred[0].strip()):
-                            fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",")                                                     
-                        for idx, arg in enumerate(fluent_arguments):
-                            if self.conceptNet.isA(arg, concept, False):
-                                re_mb_args = r"(var\([a-z]+\)|const\([a-z]+\))"
-                                re_name = r'^\w+'
-                                mb_args =  re.findall(re_mb_args, mode_bias[id][0])
-                                pred_name =  re.findall(re_name, mode_bias[id][0])[0]
-                                pred_name += "("
-                                for i, mbarg in enumerate(mb_args):
-                                    if i == idx:
-                                        pred_name += f"var({concept})"
-                                    else:
-                                        pred_name = pred_name + f"{mbarg}," if i != len(mb_args)-1 else pred_name + f"{mbarg}"
-                                pred_name += ")"
-                                mode_bias[id][0] = pred_name
+       
             if mode_bias:         
                 #mode_bias_fluents = self.modebias(predicate, statement)
                 #statement.setModeBiasFluents(mode_bias_fluents)
