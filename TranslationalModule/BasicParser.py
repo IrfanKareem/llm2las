@@ -22,6 +22,12 @@ def createPronounRegularExpression(pronoun):
 def createNameRegularExpression(name):
     return "\\1" + name + "\\2"
 
+def hasWHDeterminerChild(token):
+    for child in token.children:
+        if child.tag_ == "WDT":
+            return True
+    return False
+
 
 def getSubstitutedText(pronoun, substitution, statement):
     pronounRegularExpression = createPronounRegularExpression(pronoun)
@@ -34,11 +40,12 @@ def hasDativeParent(token):
 
 class BasicParser:
     def __init__(self, taskId):
-        self.nlp = spacy.load("en_core_web_lg")
+        self.nlp = spacy.load("en_core_web_sm")
         self.synonymDictionary = {}
         self.conceptNet = ConceptNetIntegration()
         self.conceptsToExplore = set()
         self.determiningConcepts = {}
+        self.determiners = set()
         self.temporalConstants = {}
         self.taskId = taskId
 
@@ -263,23 +270,57 @@ class BasicParser:
                 
             #mode_bias = self.parse_llm_mb(sentence_text, predicate[0][0])
             mode_bias = self.parse_llm_mb(statement, to_parse)
+            
+            #/////////////////////replacing with determiners//////////////////////////
+            if isinstance(statement, Question) and not statement.isYesNoMaybeQuestion():
+                typeDeterminer = [token.lemma_ for token in statement.doc if hasWHDeterminerChild(token)]
+                if typeDeterminer:
+                    self.determiners.add(typeDeterminer[0])
+            elif not isinstance(statement, Question) and len(self.determiners)>0:#There is a determiner to analyze
+                for concept in self.determiners:
+                    for id, pred in enumerate(predicate):
+                        fluent_arguments = []
+                        for x in re.finditer(r"\(([^)]+)\)", pred[0].strip()):
+                            fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",") 
+                                                    
+                        for idx, arg in enumerate(fluent_arguments):
+                            if self.conceptNet.isA(arg, concept):
+                                re_mb_args = r"(var\([a-z]+\)|const\([a-z]+\))"
+                                re_name = r'^\w+'
+                                mb_args =  re.findall(re_mb_args, mode_bias[id][0])
+                                pred_name =  re.findall(re_name, mode_bias[id][0])[0]
+                                pred_name += "("
+                                for i, mbarg in enumerate(mb_args):
+                                    if i == idx:
+                                        pred_name += f"var({concept})"
+                                    else:
+                                        pred_name = pred_name + f"{mbarg}," if i != len(mb_args)-1 else pred_name + f"{mbarg}"
+                                pred_name += ")"
+                                mode_bias[id][0] = pred_name
             if mode_bias:         
                 #mode_bias_fluents = self.modebias(predicate, statement)
                 #statement.setModeBiasFluents(mode_bias_fluents)
                 statement.setModeBiasFluents(mode_bias)
                 
-                # mb = re.sub(r"\s+", "", mode_bias[0][0])   
-                # prior_mb = self.modebias(predicate, statement)
-                # prior = prior_mb[0][0]
-                # prior = re.sub(r"\s+", "", prior)               
-                # logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
-                # if(prior != mb):
-                #     logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")
+                mb = re.sub(r"\s+", "", mode_bias[0][0])   
+                prior_mb = self.modebias(predicate, statement)
+                prior = prior_mb[0][0]
+                prior = re.sub(r"\s+", "", prior)               
+                logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
+                if(prior != mb):
+                    logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")        
+              #  create here for determinaing color with isA
         
         else:
             # Setting a default fluent representation if parsing fails
             statement.setFluents([[""]])
             statement.setModeBiasFluents([[""]])  # Set default modeBiasFluents
+            
+    def createDeterminingConceptsEntry(self, entry, fluentBase):
+        if entry in self.determiningConcepts.keys():
+            return
+        self.determiningConcepts[entry] = {}
+        self.determiningConcepts[entry] = fluentBase
 
     def updateSentence(self, sentence: Sentence):
         fluents, modeBiasFluents = sentence.getFluents(), sentence.getModeBiasFluents()
