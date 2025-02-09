@@ -195,7 +195,10 @@ class BasicParser:
             for id, arg in enumerate(re.finditer(re_mb_args, mb_fluent)):
                 if "const(" in arg.group(0) and id < len(fluent_arguments):
                     arg_type = arg.group(0).replace("const(", "").replace(")", "")
-                    statement.addConstantModeBias(createConstantTerm(arg_type, fluent_arguments[id]))
+                    if isinstance(statement, Question) and "how many" in statement.text.lower():
+                        statement.addConstantModeBias(createConstantTerm(arg_type, statement.answer[0]))
+                    else:    
+                        statement.addConstantModeBias(createConstantTerm(arg_type, fluent_arguments[id]))
         
             
     def modebias(self, fluents, statement):
@@ -324,13 +327,13 @@ class BasicParser:
                 #statement.setModeBiasFluents(mode_bias_fluents)
                 statement.setModeBiasFluents(mode_bias)
                 
-                mb = re.sub(r"\s+", "", mode_bias[0][0])   
-                prior_mb = self.modebias(predicate, statement)
-                prior = prior_mb[0][0]
-                prior = re.sub(r"\s+", "", prior)               
-                logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
-                if(prior != mb):
-                    logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")        
+                # mb = re.sub(r"\s+", "", mode_bias[0][0])   
+                # prior_mb = self.modebias(predicate, statement)
+                # prior = prior_mb[0][0]
+                # prior = re.sub(r"\s+", "", prior)               
+                # logging.info(f"Sentence: {statement.text} MODE BIAS Fluent: {mb} PREDICATE: {prior_mb}")
+                # if(prior != mb):
+                #     logging.info(f"MODE BIAS Fluent ERRORR {str(prior == mb)}")        
               #  create here for determinaing color with isA
         
         else:
