@@ -74,6 +74,43 @@ Semantic parse:
 \"\"\"
 """
 
+prompt_qa3 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+The available predicates names are: go_to, pickup, leave, and be_before.
+Here are a few examples of parsings to guide you in the task:
+\"\"\"
+Sentence: Joaquin picked up the pineapple there.
+Semantic parse: pickup(joaquin,pinneapple).
+
+Sentence: Where was the pencil before the bathroom?
+Semantic parse: be_before(pencil,bathroom,V1).
+
+Sentence: Debolina moved to the garden.
+Semantic parse: go_to(bebolina,garden).
+
+Sentence: Alicia left the juice.
+Semantic parse: leave(alicia,juice).
+
+Sentence: Mario dropped the baseball.
+Semantic parse: leave(martina,classroom).
+
+Sentence: Where was the car before the park?
+Semantic parse: be_before(car,park,V1).
+
+Sentence: Martina journeyed to the classroom.
+Semantic parse: go_to(martina,classroom).
+
+Sentence: Arthur got the glass there.
+Semantic parse: pickup(arthur,glass).
+\"\"\"
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+\"\"\"
+Sentence: {{sentence}}
+Semantic parse:
+\"\"\"
+"""
+
 prompt_qa4 = """Please parse the sentence is provided below into a first-order logic predicate form. 
 The available predicates names are: be_east_of, be_west_of, be_north_of, and be_south_of.
 
@@ -1154,6 +1191,7 @@ Mode bias:
 prompts = {0: prompt_mb,
            1: prompt_qa1, 
            2: prompt_qa2,
+           3: prompt_qa3,
            4: prompt_qa4,
            5: prompt_qa5,
            6: prompt_qa6, 
