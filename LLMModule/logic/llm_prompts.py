@@ -109,7 +109,7 @@ Sentence: Who gave the milk?
 Semantic parse: give(V1,milk)
 
 Sentence: Margarita put down the milk.
-Semantic parse: leave(Margarita,milk)
+Semantic parse: leave(margarita,milk)
 \"\"\"
 
 Please, provide just the parsing data using the examples format.
@@ -192,6 +192,66 @@ Semantic parse: be_in(mary, bedroom)
 
 Sentence: Sarah grabbed the milk there.  
 Semantic parse: pickup(sarah, milk)
+\"\"\"
+
+Please, provide just the parsing data using the examples format.
+The sentence to parse is:
+\"\"\"
+Sentence: {{sentence}}
+Semantic parse:
+\"\"\"
+"""
+
+prompt_qa7 =  """Please parse the sentence is provided below into a first-order logic predicate form. 
+The available predicates names are: pickup, drop, go_to, give_to, and carry.
+Here are a few examples of parsings to guide you in the task:
+
+\"\"\"
+Sentence: Alex moved to the park.
+Semantic parse: go_to(alex, park)
+
+Sentence: Asafa took the baseball there.
+Semantic parse: pickup(asafa, baseball)
+
+Sentence: Noel discarded the bread.
+Semantic parse: pickup(noel, bread)
+
+Sentence: John went to the roof.  
+Semantic parse: go_to(john, roof)
+
+Sentence: How many objects is Salet carrying?  
+Semantic parse: carry(salet, V1)
+
+Sentence: Flora discarded the flower.
+Semantic parse: drop(flora, flower)
+
+
+Sentence: Max journeyed to the bathroom.  
+Semantic parse: go_to(max, bathroom)
+
+Sentence: Sandra dropped the apple. 
+Semantic parse: pickup(sandra, apple)
+
+Sentence: Andrea got the pen there.
+Semantic parse: pickup(andrea, pen)
+
+Sentence: Richard gave the pencil to Mariam.
+Semantic parse: give_to(richard, pencil, mariam)
+
+Sentence: Mary discarded the milk.  
+Semantic parse: drop(mary, milk)
+
+Sentence: Cloe is in the room.  
+Semantic parse: be_in(cloe, room)
+
+Sentence: Mary discarded the milk.  
+Semantic parse: drop(mary, milk)
+
+Sentence: How many objects is Max carrying?  
+Semantic parse: carry(max, V1)
+
+Sentence: Shazam handed the apple to Mary.
+Semantic parse: give_to(shazam, apple, mary)
 \"\"\"
 
 Please, provide just the parsing data using the examples format.
@@ -773,7 +833,8 @@ Semantic parse:
 """
 
 prompt_qa17 = """Please parse the sentence is provided below into a first-order logic predicate form.
-The available predicates names are: above, below, right, and below.
+The available predicates names are: be_left_of, be_above_of, be_right_of, and be_below_of.
+For the quesion sentences, the predicates names are: be_left, be_above, be_right, and be_below.
 
 Here are a few examples of parsings to guide you in the task:
 
@@ -794,16 +855,16 @@ Sentence: The sphere is below the square.
 Semantic parse: be_below_of(sphere,square)
 
 Sentence: Is the blue square below the yellow square?
-Semantic parse: be_below_of(blue_square,yellow_square)
+Semantic parse: be_below(blue_square,yellow_square)
 
 Sentence: Is the sphere to the right of the triangle?
-Semantic parse: be_right_of(sphere,triangle)
+Semantic parse: be_right(sphere,triangle)
 
 Sentence: Is the red circle above the cyan square?
-Semantic parse: be_above_of(red_circle,cyan_square)
+Semantic parse: be_above(red_circle,cyan_square)
 
 Sentence: Is the square to the right of the circle?
-Semantic parse: be_right_of(square,circle)
+Semantic parse: be_right(square,circle)
 \"\"\"
 
 Please, provide just the parsing data using the examples format.
@@ -990,7 +1051,8 @@ Let's break the task into clear steps:
     5.1 **Temporal Aspect**: Arguments with a temporal aspect (e.g., words like "day", "morning", "yesterday") or variables in "why" questions are wrapped in "const".
     5.2 **Adjectives**: If the argument is an adjective (e.g., "sick") without an "isA" relationship to a WH-determiner, wrap it in "const".
     5.3 **Modal Verb "will"**: If the "Where" question includes the modal verb "will", the the variable type should be wrapped in "const".
-    5.4 **Other cases**: All other arguments are wrapped in "var".
+    5.4 *How many questions*: The variable type. i.e. "number", should be wrapped in "const". 
+    5.5 **Other cases**: All other arguments are wrapped in "var".
 
 ## Notes
 - For **step 2.1**, do not derive the noun's POS tag; instead, use the noun lemma.
@@ -1057,6 +1119,7 @@ prompts = {0: prompt_mb,
            4: prompt_qa4,
            5: prompt_qa5,
            6: prompt_qa6, 
+           7: prompt_qa7, 
            8: prompt_qa8, 
            9: prompt_qa9, 
            10: prompt_qa10, 
