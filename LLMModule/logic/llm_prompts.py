@@ -1122,7 +1122,7 @@ Let's break the task into clear steps:
 3. If the argument is related to any WH-determiner in the context (e.g., through an "isA" relationship), its type is assigned based on the WH-determiner.
 4. Otherwise, the argument's type is **strictly** determined by its POS tag.
 5. Apply the correct wrapping ("var" or "const") to argument types:
-    5.1 **Temporal Aspect**: Arguments with a temporal aspect (e.g., words like "day", "morning", "yesterday") or variables in "why" questions are wrapped in "const".
+    5.1 **Temporal Aspect**: Predicate arguments with a temporal aspect (e.g., words like "day", "morning", "yesterday") or variables in "why" questions are wrapped in "const".
     5.2 **Adjectives**: If the argument is an adjective (e.g., "sick") without an "isA" relationship to a WH-determiner, wrap it in "const".
     5.3 **Modal Verb "will"**: If the "Where" question includes the modal verb "will", the the variable type should be wrapped in "const".
     5.4 *How many questions*: The variable type. i.e. "number", should be wrapped in "const". 
@@ -1148,6 +1148,10 @@ Here are some examples for reference:
 - Sentence: "Mary is a mouse."
   Fluent representation: `be(mary, mouse)`
   Mode bias: `be(var(nnp), var(nn))`
+  
+- Sentence: "Where was the car before the park?"
+  Fluent representation: `be_before(car, park, V1)`
+  Mode bias: `be_before(var(nn), var(nn), var(nn))`
 
 - Sentence: "What is Mary afraid of?"
   Fluent representation: `be_afraid_of(mary, V1)`
