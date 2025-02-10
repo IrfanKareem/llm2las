@@ -48,6 +48,7 @@ class LanguageModel:
         return response.choices[0].message.content
     
     def generate_mb(self, sentence, fluent, max_length=2048, do_sample=False, temperature=0.5, top_p=0.5, num_return_sequences=1):   
+
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages = [
@@ -56,7 +57,7 @@ class LanguageModel:
                     "content": [
                         {
                             "type": "text",
-                            "text": "Hello, you are a semantic parser assistant in the propositional logic field. Your job is to semantic parse some sentences and questions into a mode bias representation." 
+                            "text": "Hello, your job is to semantic parse some sentences and questions into a first-order logic predicate form." 
                         }
                     ] 
                 },
