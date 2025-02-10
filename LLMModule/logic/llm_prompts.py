@@ -1124,7 +1124,7 @@ Let's break the task into clear steps:
 5. Apply the correct wrapping ("var" or "const") to argument types:
     5.1 **Temporal Aspect**: Predicate arguments with a temporal aspect (e.g., words like "day", "morning", "yesterday") or variables in "why" questions are wrapped in "const".
     5.2 **Adjectives**: If the argument is an adjective (e.g., "sick") without an "isA" relationship to a WH-determiner, wrap it in "const".
-    5.3 **Modal Verb "will"**: If the "Where" question includes the modal verb "will", the the variable type should be wrapped in "const".
+    5.3 **Modal Verb "will"**: If the "Where" question includes the modal verb "will", the variable type should be wrapped in "const".
     5.4 *How many questions*: The variable type. i.e. "number", should be wrapped in "const". 
     5.5 **Other cases**: All other arguments are wrapped in "var".
 
