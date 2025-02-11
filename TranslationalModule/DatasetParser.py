@@ -3,15 +3,15 @@ from StoryStructure.Sentence import Sentence
 from StoryStructure.Story import Story
 from TranslationalModule.BasicParser import BasicParser, getSubstitutedText
 from TranslationalModule.EventCalculus import wrap
+from Utilities.AbstractILPSyntax import AbstractILPSyntax
 
 
 class DatasetParser(BasicParser):
-    def __init__(self, trainCorpus, testCorpus, useSupervision=False, taskId=1):
-        super().__init__(taskId)
+    def __init__(self, trainCorpus, testCorpus, useSupervision=False, taskId=1, syntaxCreator: AbstractILPSyntax=None, learner_system='ILASP'):
+        super().__init__(taskId, syntaxCreator=syntaxCreator, learner_system=learner_system)
         self.trainCorpus = trainCorpus
         self.testCorpus = testCorpus
         self.useSupervision = useSupervision
-
 
         print(" Pos-Tagging Train Stories Corpus ".center(80, "%"))
         for story in self.trainCorpus:

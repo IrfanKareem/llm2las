@@ -11,6 +11,7 @@ from TranslationalModule.LLMCache import SemanticParsingCache
 import json
 from pathlib import Path 
 import logging
+from Utilities.AbstractILPSyntax import AbstractILPSyntax
 
 LLM_SERVICE_URL = "http://127.0.0.1:8000/logic/generate/"
 LLM_SERVICE_URL_MB = "http://127.0.0.1:8000/logic/generate_mb/"
@@ -39,7 +40,7 @@ def hasDativeParent(token):
 
 
 class BasicParser:
-    def __init__(self, taskId):
+    def __init__(self, taskId, syntaxCreator: AbstractILPSyntax=None, learner_system = 'ILASP'):
         self.nlp = spacy.load("en_core_web_sm")
         self.synonymDictionary = {}
         self.conceptNet = ConceptNetIntegration()
@@ -53,6 +54,8 @@ class BasicParser:
         cache_folder.mkdir(parents=True, exist_ok=True)
         self.cache = SemanticParsingCache((cache_folder / str(taskId)).as_posix())
         self.cache_mb = SemanticParsingCache((cache_folder / f'{str(taskId)}_mb' ).as_posix())
+        self.syntaxCreator = syntaxCreator
+        self.learner_system = learner_system
 
     def coreferenceFinder(self, statement: Sentence, story: Story):
         index = story.getIndex(statement)
@@ -131,13 +134,19 @@ class BasicParser:
             aux_mb = re.sub(r"\s+", "", mbias_representation)
             if '|' in mbias_representation:
                 #matches = [x.group() for x in re.finditer("[a-zA-z_]*\([a-zA-z]+([,a-zA-z0-9\s]+)?\)", mbias_representation.strip())]
-                #return [matches]                
-                self._add_constant_if_needed(statement, to_parse, aux_mb)
+                #return [matches]
+                if self.learner_system == 'ILASP':                
+                    self._add_constant_if_needed(statement, to_parse, aux_mb)
+                else:
+                    self._add_constants(statement, to_parse, aux_mb)
                 #return [[x.strip() for x in aux_mb.strip().split("|")]]
                 #return [mbias_representation.split("|")]
                 mode_bias_fluents = [[x.strip() for x in aux_mb.strip().split("|")]]
             else:
-                self._add_constant_if_needed(statement, to_parse, aux_mb)
+                if self.learner_system == 'ILASP':                
+                    self._add_constant_if_needed(statement, to_parse, aux_mb)
+                else:
+                    self._add_constants(statement, to_parse, aux_mb)
                 #matches = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
                 #return matches
                 mode_bias_fluents = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
@@ -196,98 +205,112 @@ class BasicParser:
                 if "const(" in arg.group(0) and id < len(fluent_arguments):
                     arg_type = arg.group(0).replace("const(", "").replace(")", "")
                     if isinstance(statement, Question) and "how many" in statement.text.lower():
-                        statement.addConstantModeBias(createConstantTerm(arg_type, statement.answer[0]))
+                        statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, statement.answer[0]))
                     else:    
-                        statement.addConstantModeBias(createConstantTerm(arg_type, fluent_arguments[id]))
+                        statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, fluent_arguments[id]))
+                        
+    def _add_constants(self, statement, fluent, mb_fluent):
+        re_mb_args = r"(var\([a-z]+\)|const\([a-z]+\))"
+        re_fluent_args = r"\(([^)]+)\)"
+        
+        fluent_arguments = []
+        for x in re.finditer(re_fluent_args, fluent.strip()):
+            fluent_arguments = fluent_arguments + x.group().replace("(", "").replace(")", "").split(",")                
+            
+        for id, arg in enumerate(re.finditer(re_mb_args, mb_fluent)):
+            if id < len(fluent_arguments):
+                arg_type = arg.group(0).replace("const(", "").replace("var(", "").replace(")", "")
+                statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, fluent_arguments[id]))  
+
         
             
-    def modebias(self, fluents, statement):
-        doc = self.nlp(statement.doc.text)
+    # def modebias(self, fluents, statement):
+    #     doc = self.nlp(statement.doc.text)
  
-        # Check if the sentence is a "why" question
-        is_why_question = statement.text.lower().startswith("why")
-        if isinstance(statement, Question) and is_why_question:
-            for answer in  statement.answer:
-                statement.addConstantModeBias(createConstantTerm("jj", answer))
+    #     # Check if the sentence is a "why" question
+    #     is_why_question = statement.text.lower().startswith("why")
+    #     if isinstance(statement, Question) and is_why_question:
+    #         for answer in  statement.answer:
+    #             statement.addConstantModeBias(createConstantTerm("jj", answer))
             
 
-        is_what_color_question = statement.text.lower().startswith("what color")
+    #     is_what_color_question = statement.text.lower().startswith("what color")
 
-        # Check if the sentence is a "where" question
-        is_where_question = statement.text.lower().startswith("where")
-        has_will = "will" in statement.text.lower()
+    #     # Check if the sentence is a "where" question
+    #     is_where_question = statement.text.lower().startswith("where")
+    #     has_will = "will" in statement.text.lower()
 
-        # Create a dictionary to store the words and their POS tags in lowercase
-        pos_tags = {token.text.lower(): token.tag_.lower() for token in doc}        
-        real_pos_tags = {token.text.lower(): token for token in doc} | {token.lemma_.lower(): token for token in doc}                         
-        lemmas_pos_tags = {token.lemma_.lower(): token.tag_.lower()  for token in doc}
+    #     # Create a dictionary to store the words and their POS tags in lowercase
+    #     pos_tags = {token.text.lower(): token.tag_.lower() for token in doc}        
+    #     real_pos_tags = {token.text.lower(): token for token in doc} | {token.lemma_.lower(): token for token in doc}                         
+    #     lemmas_pos_tags = {token.lemma_.lower(): token.tag_.lower()  for token in doc}
     
-        pos_tags = pos_tags | lemmas_pos_tags
+    #     pos_tags = pos_tags | lemmas_pos_tags
  
-        # List of color words
-        color_words = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'black', 'white', 'gray', 'brown']
+    #     # List of color words
+    #     color_words = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'black', 'white', 'gray', 'brown']
  
-        # Function to replace words with POS tags or const
-        def replace(match):
-            word = match.group(0).lower()
-            if word == 'box_of_chocolates':
-                return varWrapping('nn')
-            if word in pos_tags:
-                # if word in color_words:
-                if pos_tags[word] == 'jj':
-                    if word in color_words or is_what_color_question:
-                        return varWrapping('color')
-                    else:
-                        if isinstance(statement, Question) and is_why_question:
-                            statement.addConstantModeBias(createConstantTerm("jj", word))
-                        return constWrapping("jj")
+    #     # Function to replace words with POS tags or const
+    #     def replace(match):
+    #         word = match.group(0).lower()
+    #         if word == 'box_of_chocolates':
+    #             return varWrapping('nn')
+    #         if word in pos_tags:
+    #             # if word in color_words:
+    #             if pos_tags[word] == 'jj':
+    #                 if word in color_words or is_what_color_question:
+    #                     return varWrapping('color')
+    #                 else:
+    #                     if isinstance(statement, Question) and is_why_question:
+    #                         statement.addConstantModeBias(createConstantTerm("jj", word))
+    #                     return constWrapping("jj")
                         
-                if self.isConstant(real_pos_tags[word]):
-                    wrapping = constWrapping(pos_tags[word])
-                    statement.addConstantModeBias(createConstantTerm(pos_tags[word], word))
-                    return wrapping
+    #             if self.isConstant(real_pos_tags[word]):
+    #                 wrapping = constWrapping(pos_tags[word])
+    #                 statement.addConstantModeBias(createConstantTerm(pos_tags[word], word))
+    #                 return wrapping
 
-                # If the word is a noun, use 'var(nn)' or 'var(nnp)' based on its POS tag
-                elif pos_tags[word] in ['nn', 'nns']:
-                    statement.addConstantModeBias(createConstantTerm("nn", word))
-                    return varWrapping('nn')
-                elif pos_tags[word] in ['nnp', 'nnps']:
-                    return varWrapping('nnp')
-                else:
-                    # For other POS tags, use 'var' with the POS tag
-                    return f"var({pos_tags[word]})"
-            # Special condition for placeholders in questions, case-insensitive
-            elif re.match(r'v\d+', word, re.IGNORECASE):
-                if is_what_color_question:
-                    return varWrapping('color')
-                elif is_why_question:
-                        wrapper = constWrapping("jj")
-                        return wrapper
-                elif is_where_question: 
-                    if has_will:
-                        return constWrapping("nn")
-                    else:
-                        return varWrapping('nn')
-                # Use 'var(nnp)' for placeholders if the sentence starts with 'who'
-                elif statement.text.lower().startswith("who"):
-                    return varWrapping('nnp')
-                else:
-                    # Default to 'var(nn)' for other placeholders
-                    return varWrapping('nn')
-            return word
-        # Function to replace words inside parentheses
-        def replace_inside_parentheses(match):
-            return re.sub(r'\b\w+\b', replace, match.group(0))
+    #             # If the word is a noun, use 'var(nn)' or 'var(nnp)' based on its POS tag
+    #             elif pos_tags[word] in ['nn', 'nns']:
+    #                 statement.addConstantModeBias(createConstantTerm("nn", word))
+    #                 return varWrapping('nn')
+    #             elif pos_tags[word] in ['nnp', 'nnps']:
+    #                 return varWrapping('nnp')
+    #             else:
+    #                 # For other POS tags, use 'var' with the POS tag
+    #                 return f"var({pos_tags[word]})"
+    #         # Special condition for placeholders in questions, case-insensitive
+    #         elif re.match(r'v\d+', word, re.IGNORECASE):
+    #             if is_what_color_question:
+    #                 return varWrapping('color')
+    #             elif is_why_question:
+    #                     wrapper = constWrapping("jj")
+    #                     return wrapper
+    #             elif is_where_question: 
+    #                 if has_will:
+    #                     return constWrapping("nn")
+    #                 else:
+    #                     return varWrapping('nn')
+    #             # Use 'var(nnp)' for placeholders if the sentence starts with 'who'
+    #             elif statement.text.lower().startswith("who"):
+    #                 return varWrapping('nnp')
+    #             else:
+    #                 # Default to 'var(nn)' for other placeholders
+    #                 return varWrapping('nn')
+    #         return word
+    #     # Function to replace words inside parentheses
+    #     def replace_inside_parentheses(match):
+    #         return re.sub(r'\b\w+\b', replace, match.group(0))
  
-        ModeBiasFluents = []
-        for fluent_list in fluents:
-            mode_bias_fluent_list = []
-            for fluent in fluent_list:
-                # Replace words in the fluent with their POS tags
-                new_fluent = re.sub(r'\([^)]+\)', replace_inside_parentheses, fluent)
-                mode_bias_fluent_list.append(new_fluent)
-            ModeBiasFluents.append(mode_bias_fluent_list)
-        return ModeBiasFluents
+    #     ModeBiasFluents = []
+    #     for fluent_list in fluents:
+    #         mode_bias_fluent_list = []
+    #         for fluent in fluent_list:
+    #             # Replace words in the fluent with their POS tags
+    #             new_fluent = re.sub(r'\([^)]+\)', replace_inside_parentheses, fluent)
+    #             mode_bias_fluent_list.append(new_fluent)
+    #         ModeBiasFluents.append(mode_bias_fluent_list)
+    #     return ModeBiasFluents
     
     def parse(self, statement: Sentence):
 

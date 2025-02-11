@@ -3,7 +3,7 @@ from StoryStructure.Corpus import Corpus
 from StoryStructure.Question import Question
 from StoryStructure.Story import Story
 from TranslationalModule.ConceptNetIntegration import ConceptNetIntegration
-from Utilities.ILASPSyntax import createTimeRange
+from TranslationalModule.EventCalculus import createTimeRange
 
 
 def createExpressivityConstraint(sentence: Question):

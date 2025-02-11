@@ -24,6 +24,9 @@ def initiatedAt(fluent, time):
 def terminatedAt(fluent, time):
     return "terminatedAt(" + fluent + "," + str(time) + ")"
 
+def createTimeRange(time: int):
+    return 'time(1..' + str(time) + ')'
+
 
 def wrap(statement: Sentence):
     fluents = statement.getFluents()

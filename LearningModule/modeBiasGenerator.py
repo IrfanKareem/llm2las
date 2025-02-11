@@ -1,36 +1,39 @@
 from StoryStructure.Question import Question
 from StoryStructure.Sentence import Sentence
 from TranslationalModule.EventCalculus import initiatedAt, terminatedAt, holdsAt, happensAt
-from Utilities.ILASPSyntax import varWrapping, modeHWrapping, modeBWrapping
+from Utilities.AbstractILPSyntax import AbstractILPSyntax
 
 
 class ModeBiasGenerator:
-    def __init__(self, corpus, useSupervision=False):
+    def __init__(self, corpus, useSupervision=False, syntaxCreator:AbstractILPSyntax=None):
         self.corpus = corpus
         self.useSupervision = useSupervision
+        self.syntaxCreator = syntaxCreator
 
-    @staticmethod
-    def generateBeAndQuestionBias(modeBiasFluent, isQuestion=True):
+
+    def generateBeAndQuestionBias(self, modeBiasFluent, isQuestion=True):
         nonECBias = set()
         ECBias = set()
-        time = varWrapping("time")
+        #time = varWrapping("time")
+        time = self.syntaxCreator.varWrapping("time")
         if isQuestion:
-            ECBias.add(modeHWrapping(initiatedAt(modeBiasFluent, time)))
-            ECBias.add(modeHWrapping(terminatedAt(modeBiasFluent, time)))
-            nonECBias.add(modeHWrapping(modeBiasFluent))
+            ECBias.add(self.syntaxCreator.modeHWrapping(initiatedAt(modeBiasFluent, time)))
+            ECBias.add(self.syntaxCreator.modeHWrapping(terminatedAt(modeBiasFluent, time)))
+            nonECBias.add(self.syntaxCreator.modeHWrapping(modeBiasFluent))
         else:
-            ECBias.add(modeBWrapping(initiatedAt(modeBiasFluent, time)))
-            nonECBias.add(modeBWrapping(modeBiasFluent))
-        ECBias.add(modeBWrapping(holdsAt(modeBiasFluent, time)))
+            ECBias.add(self.syntaxCreator.modeBWrapping(initiatedAt(modeBiasFluent, time)))
+            nonECBias.add(self.syntaxCreator.modeBWrapping(modeBiasFluent))
+        ECBias.add(self.syntaxCreator.modeBWrapping(holdsAt(modeBiasFluent, time)))
         return nonECBias, ECBias
 
-    @staticmethod
-    def generateNonBeBias(modeBiasFluent):
+
+    def generateNonBeBias(self, modeBiasFluent):
         nonECBias = set()
         ECBias = set()
-        time = varWrapping("time")
-        ECBias.add(modeBWrapping(happensAt(modeBiasFluent, time)))
-        nonECBias.add(modeBWrapping(modeBiasFluent))
+        #time = varWrapping("time")
+        time = self.syntaxCreator.varWrapping("time")
+        ECBias.add(self.syntaxCreator.modeBWrapping(happensAt(modeBiasFluent, time)))
+        nonECBias.add(self.syntaxCreator.modeBWrapping(modeBiasFluent))
         return nonECBias, ECBias
 
     def addStatementModeBias(self, statement: Sentence):

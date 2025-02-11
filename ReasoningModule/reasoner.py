@@ -3,7 +3,7 @@ import re
 from StoryStructure.Question import Question
 from StoryStructure.Story import Story
 from TranslationalModule.ExpressivityChecker import createChoiceRule
-from Utilities.ILASPSyntax import createTimeRange
+from TranslationalModule.EventCalculus import createTimeRange
 
 
 def createRegularExpression(representation):
@@ -105,6 +105,12 @@ class Reasoner:
 
             if statement == question:
                 break
+        
+        for constantBias in self.corpus.constantModeBias:
+                if('#' not in constantBias):#No ILASP Learner
+                    file.write(constantBias)
+                    file.write('\n')
+                
         file.write(createTimeRange(question.getLineID()))
         file.write('.\n')
         file.close()

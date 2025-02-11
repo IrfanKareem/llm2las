@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_argument('--taskId', type=int, dest='taskId', help='bAbi task identifier [1-20]', default=1, required=True)
     parser.add_argument('--ilasp_version', type=str, dest='ilasp_version', help='the ILASP version is one of: 2, 2i, 3, 4', default='4')
     parser.add_argument('--dataset-shuffle-seed', type=int, help="Seed to shuffle the corpus.", default=0)
+    parser.add_argument('--learner', dest='learner', type=str, help='Learner to be used, either ILASP or FastLAS', default='ILASP', choices=['ILASP', 'FastLAS'])
     args = parser.parse_args()
 
     if len(sys.argv) >= 4 and args.component == 'dataset':
@@ -32,7 +33,7 @@ if __name__ == "__main__":
             accuracy, parsingTime, learningTime = DatasetPipeline(trainingCorpus, testingCorpus, 
                                                                   useSupervision=useSupervision, 
                                                                   useExpressivityChecker=useExpressivityChecker,
-                                                                  numExamples=numExamples, taskId=args.taskId, ilasp_version=args.ilasp_version, dataset_shuffle_seed=args.dataset_shuffle_seed)
+                                                                  numExamples=numExamples, taskId=args.taskId, ilasp_version=args.ilasp_version, dataset_shuffle_seed=args.dataset_shuffle_seed, learner=args.learner)
             print("Parsing Time:", parsingTime, ",Learning Time: ", learningTime, ",Accuracy: ", accuracy)
         except Exception as error:
             print(error.with_traceback())

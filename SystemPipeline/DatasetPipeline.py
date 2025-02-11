@@ -8,15 +8,16 @@ from StoryStructure.Question import Question
 from TranslationalModule.ChoiceRulesChecker import choiceRulesPresent
 from TranslationalModule.DatasetParser import DatasetParser
 from TranslationalModule.ExpressivityChecker import isEventCalculusNeeded
+from LearningModule.fastlasLearner import FastLASLearner
 import logging
 
-logging.basicConfig(level=logging.INFO, filename="answered.log",filemode="w", format="%(asctime)s %(levelname)s %(message)s")
+
 
 MAX_EXAMPLES = 10000
 
 
 def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSupervision=False,
-                    useExpressivityChecker=(True, None), taskId=1, ilasp_version='4',dataset_shuffle_seed=0,use_baked_las_file=False, shortest_stories_first_heuristics=False):
+                    useExpressivityChecker=(True, None), taskId=1, ilasp_version='4',dataset_shuffle_seed=0,use_baked_las_file=False, shortest_stories_first_heuristics=False, learner='ILASP'):
     startTime = time.time()
 
     if numExamples < MAX_EXAMPLES:
@@ -30,14 +31,16 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
 
     if shortest_stories_first_heuristics:
         trainCorpus.sort_stories_by_timestamps(reverse=True)
+        
+    if learner == 'ILASP':
+        learner = LearnerV2(trainCorpus, useSupervision=useSupervision, ilasp_version=ilasp_version)
+    else:   
+        learner = FastLASLearner(trainCorpus, useSupervision=useSupervision)
 
-    DatasetParser(trainCorpus, testCorpus, useSupervision=useSupervision, taskId=taskId)
-
+    DatasetParser(trainCorpus, testCorpus, useSupervision=useSupervision, taskId=taskId, learner_system=learner, syntaxCreator=learner.syntax_creator)
     parseEndTime = time.time()
 
     reasoner = Reasoner(trainCorpus)
-
-    learner = LearnerV2(trainCorpus, useSupervision=useSupervision, ilasp_version=ilasp_version)
 
     if useExpressivityChecker[0]:
         trainCorpus.isEventCalculusNeeded = isEventCalculusNeeded(trainCorpus)
@@ -46,7 +49,7 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
 
     trainCorpus.choiceRulesPresent = choiceRulesPresent(trainCorpus)
 
-    train(trainCorpus, reasoner, learner, useSupervision)
+    train(trainCorpus, reasoner, learner, useSupervision, syntaxCreator=learner.syntax_creator)
     learningTime = time.time()
 
     numQuestions = 0
@@ -62,14 +65,14 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
                 print(sentence.answer)
                 print(' '.join(answerToQuestion))
                 if sentence.isCorrectAnswer(answerToQuestion):
-                    numCorrect += 1
+                    numCorrect += 1                    
         print("-----------------")
 
     return numCorrect / numQuestions, parseEndTime - startTime, learningTime - parseEndTime
 
 
-def train(corpus, reasoner, learner, useSupervision):
-    modeBiasGenerator = ModeBiasGenerator(corpus, useSupervision)
+def train(corpus, reasoner, learner, useSupervision, syntaxCreator=None):
+    modeBiasGenerator = ModeBiasGenerator(corpus, useSupervision, syntaxCreator=syntaxCreator)
     modeBiasGenerator.assembleModeBias()
     for story in corpus:
         for sentence in story:

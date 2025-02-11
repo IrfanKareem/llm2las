@@ -4,7 +4,10 @@ from StoryStructure.Question import Question
 from StoryStructure.Sentence import Sentence
 from StoryStructure.Story import Story
 from TranslationalModule.ExpressivityChecker import createChoiceRule
-from Utilities.ILASPSyntax import createTimeRange, maxVariables
+from Utilities.ILASPSyntax import maxVariables
+from Utilities.ILASPSyntax import AbstractILPSyntax
+from Utilities.ILASPSyntax import ILASPSyntaxCreator
+from TranslationalModule.EventCalculus import createTimeRange
 from pathlib import Path 
 
 def check_file_not_empty(file):
@@ -264,6 +267,7 @@ class LearnerV2:
         self.ilasp_version = ilasp_version
         self.used_cache_files = []
         self.last_ml_used = 1
+        self.syntax_creator: AbstractILPSyntax = ILASPSyntaxCreator()
 
     def learn(self, question: Question, story: Story, answer, createNewLearningFile=False):
         if self.corpus.choiceRulesPresent:
@@ -418,7 +422,8 @@ class LearnerV2:
                     lang_bias.write(constantBias)
                     lang_bias.write('\n')
 
-            lang_bias.write(maxVariables(self.heuristics.maximumNumberOfVariables()))
+            #lang_bias.write(maxVariables(self.heuristics.maximumNumberOfVariables()))
+            lang_bias.write(self.syntax_creator.maxVariables(self.heuristics.maximumNumberOfVariables()))
 
             lang_bias.write("#max_penalty(50).\n")
 
