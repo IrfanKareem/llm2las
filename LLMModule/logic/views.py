@@ -28,6 +28,7 @@ def generate_response(request):
     response = lm_model.generate(sentence)
     # generated_text = response[0]['generated_text']
     # Extract the last two lines for sentence and semantic parse
+    print("lm_model.generate(sentence) " + response)
     parsing_idx = response.find('Semantic parse:')
     if parsing_idx != -1:
         parsed_predicate = re.sub(r"Semantic parse:\s*","", response[parsing_idx:]).replace(".","")
@@ -57,10 +58,10 @@ def generate_mb(request):
     # Extract the last two lines for sentence and semantic parse
     parsing_idx = response.find('Mode bias:')
     if parsing_idx != -1:
-        parsed_predicate = re.sub(r"Mode bias:\s*","", response[parsing_idx:]).replace(".","")
-        print(parsed_predicate)
+        parsed_predicate = re.sub(r"Mode bias:\s*","", response[parsing_idx:]).replace(".","")        
         #parsed_predicate = re.sub(r"\s+","", parsed_predicate)
         parsed_predicate = re.sub(r"\n","", parsed_predicate)
+        print(f"Mode bias: {parsed_predicate}")
         if len(parsed_predicate) != 0:
             return Response({
                 "sentence": sentence,
