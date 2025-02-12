@@ -10,14 +10,13 @@ from TranslationalModule.DatasetParser import DatasetParser
 from TranslationalModule.ExpressivityChecker import isEventCalculusNeeded
 from LearningModule.fastlasLearner import FastLASLearner
 import logging
-
-
+logging.basicConfig(filename='./answered.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
 
 MAX_EXAMPLES = 10000
 
 
 def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSupervision=False,
-                    useExpressivityChecker=(True, None), taskId=1, ilasp_version='4',dataset_shuffle_seed=0,use_baked_las_file=False, shortest_stories_first_heuristics=False, learner='ILASP'):
+                    useExpressivityChecker=(True, None), taskId=1, ilasp_version='4',dataset_shuffle_seed=0,use_baked_las_file=False, shortest_stories_first_heuristics=False, learner_system='ILASP'):
     startTime = time.time()
 
     if numExamples < MAX_EXAMPLES:
@@ -32,12 +31,12 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
     if shortest_stories_first_heuristics:
         trainCorpus.sort_stories_by_timestamps(reverse=True)
         
-    if learner == 'ILASP':
+    if learner_system == 'ILASP':
         learner = LearnerV2(trainCorpus, useSupervision=useSupervision, ilasp_version=ilasp_version)
     else:   
         learner = FastLASLearner(trainCorpus, useSupervision=useSupervision)
 
-    DatasetParser(trainCorpus, testCorpus, useSupervision=useSupervision, taskId=taskId, learner_system=learner, syntaxCreator=learner.syntax_creator)
+    DatasetParser(trainCorpus, testCorpus, useSupervision=useSupervision, taskId=taskId, learner_system=learner_system, syntaxCreator=learner.syntax_creator)
     parseEndTime = time.time()
 
     reasoner = Reasoner(trainCorpus)

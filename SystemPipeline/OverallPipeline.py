@@ -33,7 +33,7 @@ if __name__ == "__main__":
             accuracy, parsingTime, learningTime = DatasetPipeline(trainingCorpus, testingCorpus, 
                                                                   useSupervision=useSupervision, 
                                                                   useExpressivityChecker=useExpressivityChecker,
-                                                                  numExamples=numExamples, taskId=args.taskId, ilasp_version=args.ilasp_version, dataset_shuffle_seed=args.dataset_shuffle_seed, learner=args.learner)
+                                                                  numExamples=numExamples, taskId=args.taskId, ilasp_version=args.ilasp_version, dataset_shuffle_seed=args.dataset_shuffle_seed, learner_system=args.learner)
             print("Parsing Time:", parsingTime, ",Learning Time: ", learningTime, ",Accuracy: ", accuracy)
         except Exception as error:
             print(error.with_traceback())
