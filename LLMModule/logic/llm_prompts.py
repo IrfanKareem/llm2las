@@ -126,7 +126,7 @@ Semantic parse: be_south_of(office,kitchen)
 Sentence: The park is west of the store.
 Semantic parse: be_west_of(park,store)
 
-Sentence: The supermarket is west of the mall.
+Sentence: The supermarket is east of the mall.
 Semantic parse: be_east_of(supermarket,mall)
 
 Sentence: What is north of the parking?
@@ -1007,25 +1007,25 @@ Semantic parse:
 """
 
 prompt_qa19 = """Please parse the sentence is provided below into a first-order logic predicate form. 
-The available predicates names are: edge, and path.
+The available predicates names are: be_east_of, be_north_of, be_south_of, be_west_of, and go_to.
 
 Here are a few examples of parsings to guide you in the task:
 
 \"\"\"
 Sentence: The garden is west of the bathroom.
-Semantic parse: edge(garden,bathroom,west),edge(bathroom,garden,east).
+Semantic parse: be_west_of(garden,bathroom).
 
 Sentence: The bedroom is east of the hallway.
-Semantic parse: edge(bedroom,hallway,east),edge(hallway,bedroom,west).
+Semantic parse: be_east_of(bedroom,hallway).
 
-Sentence: The kitchen is north of the kitchen.
-Semantic parse: edge(kitchen,park,north),edge(park,kitchen,south).
+Sentence: The kitchen is north of the park.
+Semantic parse: be_north_of(kitchen,park).
 
 Sentence: The roof is south of the bathroom.
-Semantic parse: edge(roof,bathroom,south),edge(bathroom,roof,north).
+Semantic parse: be_south_of(roof,bathroom).
 
 Sentence: How do you go from the bathroom to the hallway?
-Semantic parse: path(bathroom, hallway, V1, V2).
+Semantic parse: go_to(bathroom, hallway, V1).
 \"\"\"
 
 Please, provide just the parsing data using the examples format.
