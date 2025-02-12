@@ -37,15 +37,15 @@ class Question(Sentence):
             nonECInterpretation = '{' + self.getFluents().copy()[0][0] + '}'
             return nonECInterpretation, ECInterpretation
         ECInterpretation = '{'
-        for answer in answers:
-            if answers.index(answer) != 0:
+        for index, answer in enumerate(answers):
+            if index != 0:
                 ECInterpretation += ','
             example = self.answerFiller(answer, eventCalculusNeeded=True)
             ECInterpretation += example
         ECInterpretation += '}'
         nonECInterpretation = '{'
-        for answer in answers:
-            if answers.index(answer) != 0:
+        for index, answer in enumerate(answers):
+            if index != 0:
                 nonECInterpretation += ','
             example = self.answerFiller(answer, eventCalculusNeeded=False)
             nonECInterpretation += example
