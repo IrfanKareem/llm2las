@@ -84,11 +84,13 @@ class Reasoner:
                 file.write(rule)
                 file.write('\n')
 
+        for rule in self.corpus.backgroundKnowledgeCount:#TODO: FIx this by putting it in the right place, just for task 7 at the moment
+                file.write(rule)
+                file.write('\n')
+
         for hypothesis in self.corpus.hypotheses:
             file.write(hypothesis)
             file.write('\n')
-
-            
 
         for statement in story:
             if not isinstance(statement, Question):
@@ -136,8 +138,12 @@ class Reasoner:
 
     def unificationSearch(self, question: Question, answerSet):
         answers = []
-        representation = re.sub(r'\s+', '', self.getRepresentation(question))
-        pattern = createRegularExpression(representation)
+        if question.isHowManyQuestion():
+            representation = re.sub(r'\s+', '', question.getFluents()[0][0])
+            pattern = createRegularExpression(representation).replace('carry', 'carriedItems').replace('\\)', f',{question.lineId}\\)')            
+        else: 
+            representation = re.sub(r'\s+', '', self.getRepresentation(question))
+            pattern = createRegularExpression(representation)
         compiledPattern = re.compile(pattern)
         for rule in answerSet:
             result = compiledPattern.fullmatch(rule)

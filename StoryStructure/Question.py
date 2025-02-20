@@ -22,6 +22,8 @@ class Question(Sentence):
 
     def isCorrectAnswer(self, answer):
         #return set(set(self.answer)).issubset(answer)
+        if self.isHowManyQuestion() and not answer and self.answer[0] == '0':
+            return True
         return set(answer) == set(self.answer)
 
     def getQuestionWithAnswers(self, eventCalculusNeeded=True):
@@ -58,6 +60,9 @@ class Question(Sentence):
         else:
             representation = self.getFluents()[0][0]
         representationWithAnswer = representation.replace("V1", answer.lower())
+        if self.isHowManyQuestion():
+            representationWithAnswer = self.getFluents()[0][0].replace("V1", answer.lower())
+            return representationWithAnswer.replace('carry', 'carriedItems').replace(')', f',{self.lineId})')          
         return representationWithAnswer
 
     def isYesNoMaybeQuestion(self):

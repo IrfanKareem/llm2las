@@ -404,6 +404,9 @@ class LearnerV2:
                 for rule in self.corpus.backgroundKnowledge:
                     background_knowledge.write(rule)
                     background_knowledge.write('\n')
+                for rule in self.corpus.backgroundKnowledgeCount:#TODO used just for task 7, put in the proper place
+                    background_knowledge.write(rule)
+                    background_knowledge.write('\n')
                 for bias in self.corpus.ECModeBias:
                     if "const(" in bias:
                         hasConst = True

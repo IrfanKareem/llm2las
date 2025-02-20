@@ -2,7 +2,7 @@ import random
 
 from StoryStructure.Question import Question
 from StoryStructure.Story import Story
-from TranslationalModule.EventCalculus import eventCalculusAxioms
+from TranslationalModule.EventCalculus import eventCalculusAxioms, countBackgroundKwnoledge
 
 
 class Corpus:
@@ -12,6 +12,7 @@ class Corpus:
         self.nonECModeBias = set()
         self.stories = []
         self.backgroundKnowledge = eventCalculusAxioms()
+        self.backgroundKnowledgeCount = countBackgroundKwnoledge()
         self.hypotheses = set()
         self.isEventCalculusNeeded = False
         self.choiceRulesPresent = False

@@ -141,7 +141,10 @@ class BasicParser:
                     self._add_constants(statement, to_parse, aux_mb)
                 #return [[x.strip() for x in aux_mb.strip().split("|")]]
                 #return [mbias_representation.split("|")]
-                mode_bias_fluents = [[x.strip() for x in aux_mb.strip().split("|")]]
+                if isinstance(statement, Question) and statement.isHowManyQuestion():#TODO to be fixed. Better to fix the mode bias LLM parser
+                    mode_bias_fluents = [[x.strip().replace('const(number)', 'var(nn)') for x in aux_mb.strip().split("|")]]
+                else:
+                    mode_bias_fluents = [[x.strip() for x in aux_mb.strip().split("|")]]
             else:
                 if self.learner_system == 'ILASP':                
                     self._add_constant_if_needed(statement, to_parse, aux_mb)
@@ -149,7 +152,10 @@ class BasicParser:
                     self._add_constants(statement, to_parse, aux_mb)
                 #matches = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
                 #return matches
-                mode_bias_fluents = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
+                if isinstance(statement, Question) and statement.isHowManyQuestion():#TODO to be fixed. Better to fix the mode bias LLM parser
+                    mode_bias_fluents = [[x.group().replace('const(number)', 'var(nn)')] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
+                else:
+                    mode_bias_fluents = [[x.group()] for x in re.finditer("\w+\((?:var\([a-z]+\)|const\([a-z]+\))(?:,(?:var\([a-z]+\)|const\([a-z]+\)))*\)", aux_mb.strip())]
             #return [[mbias_representation]]
             if cache_hit is None:
                 if not isinstance(statement, Question) and len(self.determiners)>0:
@@ -205,7 +211,8 @@ class BasicParser:
                 if "const(" in arg.group(0) and id < len(fluent_arguments):
                     arg_type = arg.group(0).replace("const(", "").replace(")", "")
                     if isinstance(statement, Question) and "how many" in statement.text.lower():
-                        statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, statement.answer[0]))
+                        # statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, statement.answer[0]))
+                        pass 
                     elif isinstance(statement, Question) and "how do you" in statement.text.lower():
                         for answer in statement.answer:
                             statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, answer))
