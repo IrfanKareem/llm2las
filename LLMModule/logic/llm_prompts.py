@@ -38,14 +38,14 @@ Semantic parse:
 """
 
 prompt_qa2 = """Please parse the sentence is provided below into a first-order logic predicate form. 
-The available predicates names are: go_to, pickup, leave, and be_in.
+The available predicates names are: go_to, pickup, leave, and be.
 Here are a few examples of parsings to guide you in the task:
 \"\"\"
 Sentence: Joaquin picked up the pineapple there.
 Semantic parse: pickup(joaquin,pinneapple).
 
 Sentence: Where is the mandarine?
-Semantic parse: be_in(mandarine,V1).
+Semantic parse: be(mandarine,V1).
 
 Sentence: Debolina moved to the garden.
 Semantic parse: go_to(bebolina,garden).
@@ -57,7 +57,7 @@ Sentence: Mario dropped the baseball.
 Semantic parse: leave(martina,classroom).
 
 Sentence: Where is the pencil?
-Semantic parse: be_in(pencil,V1).
+Semantic parse: be(pencil,V1).
 
 Sentence: Martina journeyed to the classroom.
 Semantic parse: go_to(martina,classroom).
