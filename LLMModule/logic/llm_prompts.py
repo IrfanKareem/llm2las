@@ -1,4 +1,4 @@
-prompt_qa1 = """Please parse the sentence is provided below into a first-order logic predicate form. The available predicates names are: go_to, be_in.
+prompt_qa1 = """Please parse the sentence provided below into a first-order logic predicate form. The available predicates names are: go_to, be_in.
 Here are a few examples of parsings to guide you in the task:
 \"\"\"
 Sentence: Mary moved to the bathroom.
@@ -37,7 +37,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa2 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa2 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to, pickup, leave, and be.
 Here are a few examples of parsings to guide you in the task:
 \"\"\"
@@ -74,7 +74,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa3 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa3 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to, pickup, leave, and be_before.
 Here are a few examples of parsings to guide you in the task:
 \"\"\"
@@ -111,7 +111,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa4 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa4 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: be_east_of, be_west_of, be_north_of, and be_south_of.
 
 Here are a few examples of parsings to guide you in the task:
@@ -151,7 +151,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa5 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa5 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: give_to, give, take, go_to, and leave.
 Look that the give_to based predicates implies also give and receive.
 
@@ -194,7 +194,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa6 =  """Please parse the sentence is provided below into a first-order logic predicate form. The available predicates names are: pickup, drop, go_to, and be_in.
+prompt_qa6 =  """Please parse the sentence provided below into a first-order logic predicate form. The available predicates names are: pickup, drop, go_to, and be_in.
 Here are a few examples of parsings to guide you in the task:
 
 \"\"\"
@@ -276,7 +276,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa7 =  """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa7 =  """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: pickup, drop, go_to, give_to, and carry.
 Here are a few examples of parsings to guide you in the task:
 
@@ -336,7 +336,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa8 = """Please parse the sentence is provided below into a first-order logic predicate form. The available predicates names are: pickup, drop, go_to, and carry.
+prompt_qa8 = """Please parse the sentence provided below into a first-order logic predicate form. The available predicates names are: pickup, drop, go_to, and carry.
 Here are a few examples of parsings to guide you in the task:
 \"\"\"
 Sentence: What is Esther carrying?
@@ -399,7 +399,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa9 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa9 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to and be_in.
 
 Here are a few examples of parsings to guide you in the task:
@@ -459,7 +459,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa10 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa10 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to, and be_in. Please use the "|" character to represent disjunction.
 
 Here are a few examples of parsings to guide you in the task:
@@ -525,7 +525,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa11 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa11 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to, and be_in.
 
 Here are a few examples of parsings to guide you in the task:
@@ -618,7 +618,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa12 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa12 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to, be.
 
 Here are a few examples of parsings to guide you in the task:
@@ -660,7 +660,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa13 = """Please parse the sentence is provided below into a first-order logic predicate form.
+prompt_qa13 = """Please parse the sentence provided below into a first-order logic predicate form.
 The available predicates names are: go_to, be.
 
 Here are a few examples of parsings to guide you in the task:
@@ -720,7 +720,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa14 = """Please parse the sentence is provided below into a first-order logic predicate form.
+prompt_qa14 = """Please parse the sentence provided below into a first-order logic predicate form.
 The available predicates names are: go_to, and be_before.
 
 Here are a few examples of parsings to guide you in the task:
@@ -786,7 +786,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa15 = """Please parse the sentence is provided below into a first-order logic predicate form.
+prompt_qa15 = """Please parse the sentence provided below into a first-order logic predicate form.
 The available predicates names are: be and be_afraid_of.
 
 Here are a few examples of parsings to guide you in the task:
@@ -846,7 +846,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa16 = """Please parse the sentence is provided below into a first-order logic predicate form.
+prompt_qa16 = """Please parse the sentence provided below into a first-order logic predicate form.
 The available predicates names are: be_color and be.
 
 Here are a few examples of parsings to guide you in the task:
@@ -906,7 +906,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa17 = """Please parse the sentence is provided below into a first-order logic predicate form.
+prompt_qa17 = """Please parse the sentence provided below into a first-order logic predicate form.
 The available predicates names are: be_left_of, be_above_of, be_right_of, and be_below_of.
 For the quesion sentences, the predicates names are: be_left, be_above, be_right, and be_below.
 
@@ -949,7 +949,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa18 = """Please parse the sentence is provided below into a first-order logic predicate form.
+prompt_qa18 = """Please parse the sentence provided below into a first-order logic predicate form.
 The available predicates names are: fit_inside and be_big.
 
 Here are a few examples of parsings to guide you in the task:
@@ -1006,7 +1006,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa19 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa19 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: be_east_of, be_north_of, be_south_of, be_west_of, and go_to.
 
 Here are a few examples of parsings to guide you in the task:
@@ -1036,7 +1036,7 @@ Semantic parse:
 \"\"\"
 """
 
-prompt_qa20 = """Please parse the sentence is provided below into a first-order logic predicate form. 
+prompt_qa20 = """Please parse the sentence provided below into a first-order logic predicate form. 
 The available predicates names are: go_to, be, and get.
 
 Here are a few examples of parsings to guide you in the task:
