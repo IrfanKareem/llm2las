@@ -13,7 +13,7 @@ from .llm_prompts import prompts
 # Initialize the model here (you can modify parameters as needed)   
 model_name = "llama3.3:70b" 
 access_token = "Your HuggingFace Access Key"
-API_URL = "http://172.20.64.1:11434/v1"
+API_URL = "http://localhost/v1"
 prompt = prompts[1]
 lm_model = LanguageModel(model_name, access_token, prompt, API_URL)
 
@@ -26,12 +26,11 @@ def generate_response(request):
         return None 
     lm_model.update_prompt(prompts[taskId])
     response = lm_model.generate(sentence)
-    # generated_text = response[0]['generated_text']
+    response = response.lower().replace('v1', 'V1')
     # Extract the last two lines for sentence and semantic parse
-    print("lm_model.generate(sentence) " + response)
-    parsing_idx = response.find('Semantic parse:')
+    parsing_idx = response.find('semantic parse:')
     if parsing_idx != -1:
-        parsed_predicate = re.sub(r"Semantic parse:\s*","", response[parsing_idx:]).replace(".","")
+        parsed_predicate = re.sub(r"semantic parse:\s*","", response[parsing_idx:]).replace(".","")
         #parsed_predicate = re.sub(r"\s+","", parsed_predicate)
         parsed_predicate = re.sub(r"\n","", parsed_predicate)
         if len(parsed_predicate) != 0:
@@ -54,12 +53,9 @@ def generate_mb(request):
 
     lm_model.update_prompt(prompts[0])
     response = lm_model.generate_mb(sentence, fluent)
-    # generated_text = response[0]['generated_text']
-    # Extract the last two lines for sentence and semantic parse
     parsing_idx = response.find('Mode bias:')
     if parsing_idx != -1:
         parsed_predicate = re.sub(r"Mode bias:\s*","", response[parsing_idx:]).replace(".","")        
-        #parsed_predicate = re.sub(r"\s+","", parsed_predicate)
         parsed_predicate = re.sub(r"\n","", parsed_predicate)
         print(f"Mode bias: {parsed_predicate}")
         if len(parsed_predicate) != 0:
