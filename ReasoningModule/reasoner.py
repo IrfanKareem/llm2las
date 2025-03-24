@@ -84,9 +84,6 @@ class Reasoner:
                 file.write(rule)
                 file.write('\n')
 
-        for rule in self.corpus.backgroundKnowledgeCount:#TODO: FIx this by putting it in the right place, just for task 7 at the moment
-                file.write(rule)
-                file.write('\n')
 
         for hypothesis in self.corpus.hypotheses:
             file.write(hypothesis)

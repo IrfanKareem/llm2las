@@ -14,6 +14,13 @@ logging.basicConfig(filename='./answered.log', level=logging.INFO, format='%(asc
 
 MAX_EXAMPLES = 10000
 
+def countBackgroundKwnoledge():
+    axiom1 = "carriedItems(X,N,T) :- holdsAt(carry(X,_),T), int(N), N #count{Z: holdsAt(carry(X,Z),T)} N."
+    axiom2 = "int(0..5)."
+    axioms: set[str] = set()
+    axioms.add(axiom1)
+    axioms.add(axiom2)
+    return axioms
 
 def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSupervision=False,
                     useExpressivityChecker=(True, None), taskId=1, ilasp_version='4',dataset_shuffle_seed=0,use_baked_las_file=False, shortest_stories_first_heuristics=False, learner_system='ILASP'):
@@ -24,6 +31,11 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
         trainCorpus.shuffle(dataset_shuffle_seed)
 
         testCorpus = pruneCorpus(testCorpus, numExamples)
+    if taskId == 7:
+        countBK = countBackgroundKwnoledge()
+        trainCorpus.backgroundKnowledge = trainCorpus.backgroundKnowledge | countBK
+        testCorpus.backgroundKnowledge = testCorpus.backgroundKnowledge | countBK
+        
     print("starting parsing.... " + str(time.time()))
     print("total number of stories: ", len(trainCorpus.stories))
     print("dataset shuffle seed: ", dataset_shuffle_seed)

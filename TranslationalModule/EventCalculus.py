@@ -9,14 +9,6 @@ def eventCalculusAxioms():
     axioms.add(axiom2)
     return axioms
 
-def countBackgroundKwnoledge():
-    axiom1 = "carriedItems(X,N,T) :- holdsAt(carry(X,_),T), int(N), N #count{Z: holdsAt(carry(X,Z),T)} N."
-    axiom2 = "int(0..5)."
-    axioms: set[str] = set()
-    axioms.add(axiom1)
-    axioms.add(axiom2)
-    return axioms
-
 def holdsAt(fluent, time):
     return "holdsAt(" + fluent + "," + str(time) + ")"
 
