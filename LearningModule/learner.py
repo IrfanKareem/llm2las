@@ -295,7 +295,6 @@ class LearnerV2:
         self.eventCalculusNeededPreviously = self.corpus.isEventCalculusNeeded
 
     def __del__(self):
-        return 
     
         if os.path.exists(self.background_knowledge_file):
             os.remove(self.background_knowledge_file)
@@ -402,9 +401,6 @@ class LearnerV2:
         with open(self.language_bias_file, 'w') as lang_bias, open(self.examples_file, 'w') as examples, open(self.background_knowledge_file, 'w') as background_knowledge:
             if self.corpus.isEventCalculusNeeded:
                 for rule in self.corpus.backgroundKnowledge:
-                    background_knowledge.write(rule)
-                    background_knowledge.write('\n')
-                for rule in self.corpus.backgroundKnowledgeCount:#TODO used just for task 7, put in the proper place
                     background_knowledge.write(rule)
                     background_knowledge.write('\n')
                 for bias in self.corpus.ECModeBias:
