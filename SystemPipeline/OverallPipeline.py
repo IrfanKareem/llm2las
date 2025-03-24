@@ -34,7 +34,7 @@ if __name__ == "__main__":
                                                                   useSupervision=useSupervision, 
                                                                   useExpressivityChecker=useExpressivityChecker,
                                                                   numExamples=numExamples, taskId=args.taskId, ilasp_version=args.ilasp_version, dataset_shuffle_seed=args.dataset_shuffle_seed, learner_system=args.learner)
-            print("Parsing Time:", parsingTime, ",Learning Time: ", learningTime, ",Accuracy: ", accuracy)
+            print("Parsing Time:", parsingTime, ", Learning Time: ", learningTime, ", Accuracy: ", accuracy)
         except Exception as error:
             print(error.with_traceback())
             print("Something went wrong. Please check all the provided argument are correct and try again")
