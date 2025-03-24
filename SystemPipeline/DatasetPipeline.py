@@ -55,7 +55,6 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
     numCorrect = 0
     
     for story in testCorpus:
-        print("-----------------")
         for sentence in story:
             print(sentence.text)
             if isinstance(sentence, Question):
@@ -64,9 +63,7 @@ def DatasetPipeline(trainCorpus, testCorpus, numExamples=MAX_EXAMPLES, useSuperv
                 print(sentence.answer)
                 print(' '.join(answerToQuestion))
                 if sentence.isCorrectAnswer(answerToQuestion):
-                    numCorrect += 1                    
-        print("-----------------")
-
+                    numCorrect += 1
     return numCorrect / numQuestions, parseEndTime - startTime, learningTime - parseEndTime
 
 
