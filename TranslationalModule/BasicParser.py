@@ -163,10 +163,11 @@ class BasicParser:
             
                 to_cache = ''
                 if len(mode_bias_fluents[0])>1:##//Disjunzione
-                    to_cache = " | ".join(statement.getFluents()[0])
+                    #to_cache = " | ".join(statement.getFluents()[0])
+                    to_cache = " | ".join(mode_bias_fluents[0])
                 else:
                     to_cache = ", ".join([x[0] for x in mode_bias_fluents])                   
-                    self.cache_mb.write_cache(statement.text+to_parse, {"sentence": statement.text, "semantic_parse": to_cache})  
+                self.cache_mb.write_cache(statement.text+to_parse, {"sentence": statement.text, "semantic_parse": to_cache})  
             return mode_bias_fluents
             
         else:
@@ -213,7 +214,7 @@ class BasicParser:
                     if isinstance(statement, Question) and "how many" in statement.text.lower():
                         # statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, statement.answer[0]))
                         pass 
-                    elif isinstance(statement, Question) and "how do you" in statement.text.lower():
+                    elif isinstance(statement, Question): #and "how do you" in statement.text.lower():
                         for answer in statement.answer:
                             statement.addConstantModeBias(self.syntaxCreator.createConstantTerm(arg_type, answer))
                     else:    
@@ -335,9 +336,9 @@ class BasicParser:
         if predicate:
             statement.setFluents(predicate) 
 
-            possibleArguments = [token for token in statement.doc if "NN" in token.tag_ or (
-                "JJ" in token.tag_ and "NN" not in token.head.tag_) or "W" in token.tag_]
-            possibleArguments = self.orderNouns(possibleArguments, statement)
+            #possibleArguments = [token for token in statement.doc if "NN" in token.tag_ or (
+            #    "JJ" in token.tag_ and "NN" not in token.head.tag_) or "W" in token.tag_]
+            #possibleArguments = self.orderNouns(possibleArguments, statement)
             
             #/////////////////////NEW//////////////////////////
             # to_parse = ''
